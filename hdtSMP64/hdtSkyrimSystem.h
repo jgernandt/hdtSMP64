@@ -176,6 +176,7 @@ namespace hdt
 		Ref<ConeTwistConstraint> readConeTwistConstraint();
 		Ref<ConstraintGroup> readConstraintGroup();
 		std::shared_ptr<btCollisionShape> readShape();
+		float readMassScale();
 
 		template <typename ... Args>
 		void Error(const char* fmt, Args ... args);
@@ -185,5 +186,8 @@ namespace hdt
 		void VMessage(const char* fmt, Args ... args);
 
 		std::vector<std::shared_ptr<btCollisionShape>> m_shapeRefs;
+
+		//Conversion factor for system units to global units
+		float m_massScale = 1.0f;
 	};
 }

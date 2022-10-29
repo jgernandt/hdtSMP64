@@ -307,6 +307,10 @@ namespace hdt
 							m_shapes.insert(std::make_pair(name, shape));
 						}
 					}
+					else if (name == "mass-scale") 
+					{
+						m_massScale = readMassScale();
+					}
 					else
 					{
 						Warning("unknown element - %s", name.c_str());
@@ -569,9 +573,9 @@ namespace hdt
 			{
 				auto name = m_reader->GetName();
 				if (name == "mass")
-					cinfo.m_mass = m_reader->readFloat();
+					cinfo.m_mass = m_reader->readFloat() * m_massScale;
 				else if (name == "inertia")
-					cinfo.m_localInertia = m_reader->readVector3();
+					cinfo.m_localInertia = m_reader->readVector3() * m_massScale;//mass * length^2
 				else if (name == "centerOfMassTransform")
 					cinfo.m_centerOfMassTransform = m_reader->readTransform();
 				else if (name == "linearDamping")
@@ -822,6 +826,38 @@ namespace hdt
 		}
 		Warning("Unknown shape type %s", typeStr.c_str());
 		return nullptr;
+	}
+
+	float hdt::SkyrimSystemCreator::readMassScale()
+	{
+		float unit;
+
+		auto unitStr = m_reader->getAttribute("unit", "kg");
+		if (unitStr == "kg") 
+		{
+			unit = 1.0f;
+		}
+		else if (unitStr == "lbs") 
+		{
+			unit = 0.45359237f;
+		}
+		else 
+		{
+			Warning("invalid mass unit %s", unitStr.c_str());
+			m_reader->skipCurrentElement();
+			return 1.0f;
+		}
+
+		float f = m_reader->readFloat();
+		if (f <= 0.0f || f == HUGE_VALF)
+		{
+			Warning("invalid mass scale %f %s", f, unitStr.c_str());
+			return 1.0f;
+		}
+		else
+		{
+			return f * unit;
+		}
 	}
 
 	void SkyrimSystemCreator::readOrUpdateBone(SkyrimSystem* old_system)
@@ -1475,8 +1511,8 @@ namespace hdt
 		constraint->setAngularUpperLimit(cinfo.angularUpperLimit);
 		for (int i = 0; i < 3; ++i)
 		{
-			constraint->setStiffness(i, cinfo.linearStiffness[i]);
-			constraint->setStiffness(i + 3, cinfo.angularStiffness[i]);
+			constraint->setStiffness(i, cinfo.linearStiffness[i] * m_massScale);//mass / time^2
+			constraint->setStiffness(i + 3, cinfo.angularStiffness[i] * m_massScale);//mass * length^2 / (angle * time^2)
 			constraint->setDamping(i, cinfo.linearDamping[i]);
 			constraint->setDamping(i + 3, cinfo.angularDamping[i]);
 			constraint->setEquilibriumPoint(i, cinfo.linearEquilibrium[i]);
@@ -1605,7 +1641,7 @@ namespace hdt
 		Ref<StiffSpringConstraint> constraint = new StiffSpringConstraint(bodyA, bodyB);
 		constraint->m_minDistance *= cinfo.minDistanceFactor;
 		constraint->m_maxDistance *= cinfo.maxDistanceFactor;
-		constraint->m_stiffness = cinfo.stiffness;
+		constraint->m_stiffness = cinfo.stiffness * m_massScale;//mass / time^2
 		constraint->m_damping = cinfo.damping;
 		constraint->m_equilibriumPoint = constraint->m_minDistance * cinfo.equilibriumFactor + constraint->m_maxDistance
 			* (1 - cinfo.equilibriumFactor);
