@@ -487,11 +487,14 @@ namespace hdt
 }
 
 extern "C" {
+
+	constexpr UInt32 hdtSMP64Version = 104900; // patch version + 10^2 * minor version + 10^5 * major version
+
 #ifdef ANNIVERSARY_EDITION
 	__declspec(dllexport) SKSEPluginVersionData SKSEPlugin_Version =
 	{
 		SKSEPluginVersionData::kVersion,
-		2,
+		hdtSMP64Version,
 		"hdtSMP64",
 		"hydrogensaysHDT",
 		"",
@@ -507,8 +510,8 @@ extern "C" {
 	{
 		// populate info structure
 		info->infoVersion = PluginInfo::kInfoVersion;
-		info->name = "hdtSSEPhysics";
-		info->version = 1;
+		info->name = "hdtSMP64";
+		info->version = hdtSMP64Version;
 
 		hdt::gLog.OpenRelative(CSIDL_MYDOCUMENTS,
 #ifndef SKYRIMVR
@@ -520,7 +523,7 @@ extern "C" {
 		);
 		hdt::gLog.SetLogLevel(IDebugLog::LogLevel::kLevel_Message);
 
-		_MESSAGE("hdtSMP64 2.0");
+		_MESSAGE("hdtSMP64 %lu", hdtSMP64Version);
 
 		if (skse->isEditor)
 		{
@@ -556,7 +559,7 @@ extern "C" {
 #ifdef ANNIVERSARY_EDITION
 		hdt::gLog.OpenRelative(CSIDL_MYDOCUMENTS, "\\My Games\\Skyrim Special Edition\\SKSE\\hdtSMP64.log");
 		hdt::gLog.SetLogLevel(IDebugLog::LogLevel::kLevel_Message);
-		_MESSAGE("hdtSMP64 2.0");
+		_MESSAGE("hdtSMP64 %lu", hdtSMP64Version);
 
 		if (!g_branchTrampoline.Create(1024 * 1))
 		{

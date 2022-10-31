@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <map>
 using namespace std;
 
 #define V1_4_15  0 // 0, supported,		sksevr 2_00_12, vr
@@ -64,8 +62,8 @@ namespace hdt
 			{ 105623, { 0x012CC630, 0x01293D20, 0x013B9A90, 0x013b99f0, 0x013ba910, 0x013ba9a0, 0x013b8230, 0x013b8160 }},
 			{ 24726,  { 0x00372b30, 0x00363210, 0x0037A240, 0x0037a1b0, 0x0037a340, 0x0037a1b0, 0x0037c1e0, 0x0037c1e0 }},
 			{ 0,      { 0x0037ae28, 0x0036B4C8, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 }},
-			{ 37770,  { 0x00605b10, 0x005fd2c0, 0x006241F0, 0x00000000, 0x00000000, 0x140624f90,0x00000000, 0x006364f0 }},
-			{ 401651, { 0x02FC62C8, 0x02f013d8, 0x02F9BAF8, 0x00000000, 0x00000000, 0x00181810, 0x00000000, 0x00183530 }},
+			{ 37770,  { 0x00605b10, 0x005fd2c0, 0x006241F0, 0x00000000, 0x00000000, 0x00624f90, 0x00000000, 0x006364f0 }},
+			{ 401652, { 0x02FC62C8, 0x02f013d8, 0x02F9BAF8, 0x00000000, 0x00000000, 0x02f9cc80, 0x00000000, 0x02f9b000 }},
 		};
 
 		constexpr auto GameStepTimer_SlowTime             = functionsOffsets.GameStepTimer_SlowTime            .V[CURRENTVERSION];

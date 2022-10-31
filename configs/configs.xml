@@ -193,4 +193,30 @@
     <maxSubSteps>4</maxSubSteps>
 
   </solver>
+  <!-- ################### WIND EFFECTS  ########################### -->
+
+  <wind>
+    <!--
+      enabled: (bool) Whether to enable wind effects, default is true.
+      Wind in Skyrim is not developed well and appears to be a static direction.
+      Wind can be detected generally from the sky object or by a weather object.
+      Wind can be tested when snow or rain is falling (e.g., SkyrimStormSnow)
+    -->
+    <enabled>true</enabled>
+    <!--
+      windStrength: (float) Base strength of wind. Compare to gravity which uses
+      9.8 m/s^2, default is 2.0.
+    -->
+    <windStrength>2.0</windStrength>
+    <!--
+      distanceForNoWind: (float) How close to an obstruction for wind to be fully blocked.
+      This scales linearly with distanceForMaxWind. default is 50.0.
+    -->
+    <distanceForNoWind>50.0</distanceForNoWind>
+    <!--
+      distanceForMaxWind: (float) How far from an obstruction for wind to be not blocked.
+      This scales linearly with distanceForNoWind. default is 3000.0.
+    -->
+    <distanceForMaxWind>3000.0</distanceForMaxWind>
+  </wind>
 </configs>
