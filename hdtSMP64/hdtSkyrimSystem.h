@@ -176,6 +176,8 @@ namespace hdt
 		Ref<ConeTwistConstraint> readConeTwistConstraint();
 		Ref<ConstraintGroup> readConstraintGroup();
 		std::shared_ptr<btCollisionShape> readShape();
+
+		void readHeader();
 		float readMassScale();
 
 		template <typename ... Args>

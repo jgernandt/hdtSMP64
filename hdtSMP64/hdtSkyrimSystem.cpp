@@ -218,11 +218,25 @@ namespace hdt
 
 		try
 		{
+			bool firstElement = true;
+
 			while (m_reader->Inspect())
 			{
 				if (m_reader->GetInspected() == XMLReader::Inspected::StartTag)
 				{
 					auto name = m_reader->GetName();
+
+					if (firstElement)
+					{
+						firstElement = false;
+
+						if (name == "header")
+						{
+							readHeader();
+							continue;
+						}
+					}
+
 					if (name == "bone")
 					{
 						readOrUpdateBone();
@@ -306,10 +320,6 @@ namespace hdt
 							m_shapeRefs.push_back(shape);
 							m_shapes.insert(std::make_pair(name, shape));
 						}
-					}
-					else if (name == "mass-scale") 
-					{
-						m_massScale = readMassScale();
 					}
 					else
 					{
@@ -826,6 +836,29 @@ namespace hdt
 		}
 		Warning("Unknown shape type %s", typeStr.c_str());
 		return nullptr;
+	}
+
+	void hdt::SkyrimSystemCreator::readHeader()
+	{
+		while (m_reader->Inspect())
+		{
+			auto result = m_reader->GetInspected();
+			if (result == XMLReader::Inspected::StartTag)
+			{
+				auto&& name = m_reader->GetName();
+				if (name == "mass-scale")
+				{
+					m_massScale = readMassScale();
+				}
+				else
+				{
+					Warning("unknown header element - %s", name.c_str());
+					m_reader->skipCurrentElement();
+				}
+			}
+			else if (result == XMLReader::Inspected::EndTag)
+				break;
+		}
 	}
 
 	float hdt::SkyrimSystemCreator::readMassScale()
