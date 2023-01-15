@@ -140,7 +140,7 @@ namespace hdt
 			btVector3 angularMaxMotorForce = btVector3(0, 0, 0);
 			btScalar motorERP = 0.2f;
 			btScalar motorCFM = 0;
-			btScalar stopERP = 0.2f;
+			btScalar stopERP = 0.9f;
 			btScalar stopCFM = 0;
 		};
 
