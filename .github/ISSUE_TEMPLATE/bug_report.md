@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
+title: "[BUG] ... happens when ... "
 labels: ''
 assignees: ''
 
@@ -30,6 +30,14 @@ If applicable, add screenshots or videos to help explain your problem.
 - Installed version
 - CUDA: No_CUDA or CUDA?
 - AVX: No_AVX, AVX, AVX2, AVX512?
+
+**SKSE**
+- installed version
+(You can check it in the bottom left part of the screen, when looking at your MCMs.)
+
+**Skyrim**
+- Installed version number
+(You can check it in the bottom left part of the screen, when looking at your MCMs.)
 
 **Required files**
 - Join your configs.xml
