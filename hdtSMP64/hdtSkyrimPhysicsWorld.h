@@ -72,6 +72,8 @@ namespace hdt
 		float m_timeTick = 1 / 60.f;
 		int m_maxSubSteps = 4;
 		bool m_clampRotations = true;
+		// @brief rotation speed limit of the PC in radians per second. Must be positive.
+		float m_rotationSpeedLimit = 10.f;
 		bool m_unclampedResets = true;
 		float m_unclampedResetAngle = 120.0f;
 		float m_averageProcessingTime = 0;

@@ -83,6 +83,8 @@ namespace hdt
 					ActorManager::instance()->m_skinNPCFaceParts = reader.readBool();
 				else if (reader.GetLocalName() == "clampRotations")
 					SkyrimPhysicsWorld::get()->m_clampRotations = reader.readBool();
+				else if (reader.GetLocalName() == "rotationSpeedLimit")
+					SkyrimPhysicsWorld::get()->m_rotationSpeedLimit = reader.readFloat();
 				else if (reader.GetLocalName() == "unclampedResets")
 					SkyrimPhysicsWorld::get()->m_unclampedResets = reader.readBool();
 				else if (reader.GetLocalName() == "unclampedResetAngle")
