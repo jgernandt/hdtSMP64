@@ -179,17 +179,24 @@ namespace hdt
 		RelocAddr<uintptr_t> addr(offset::BSFaceGenNiNode_SkinSingleGeometry_bug);
 		SafeWrite8(addr.GetUIntPtr(), 0x7);
 
-#ifndef ANNIVERSARY_EDITION
 		struct BSFaceGenExtraModelData_BoneCount_Code : Xbyak::CodeGenerator
 		{
 			BSFaceGenExtraModelData_BoneCount_Code(void* buf) : CodeGenerator(4096, buf)
 			{
 				Xbyak::Label j_Out;
 
+#ifndef ANNIVERSARY_EDITION
 				mov(esi, ptr[rax + 0x58]);
 				cmp(esi, 9);
 				jl(j_Out);
 				mov(esi, 8);
+#else
+				mov(ebp, ptr[rax + 0x58]);
+				cmp(ebp, 9);
+				jl(j_Out);
+				mov(ebp, 8);
+#endif // !ANNIVERSARY_EDITION
+
 				L(j_Out);
 				jmp(ptr[rip]);
 				dq(BoneLimit.GetUIntPtr() + 0x7);
@@ -201,7 +208,6 @@ namespace hdt
 		g_localTrampoline.EndAlloc(code.getCurr());
 
 		g_branchTrampoline.Write5Branch(BoneLimit.GetUIntPtr(), uintptr_t(code.getCode()));
-#endif // !ANNIVERSARY_EDITION
 
 	}
 
