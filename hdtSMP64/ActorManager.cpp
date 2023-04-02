@@ -61,6 +61,38 @@ namespace hdt
 		return findNode(skeleton, shouldFix ? "NPC Root [Root]" : "NPC");
 	}
 
+	void ActorManager::fixArmorNameMaps()
+	{
+		if (m_armorsToFix.size())
+			for (auto& armorNamePair = m_armorsToFix.begin(), next_pair = armorNamePair; armorNamePair != m_armorsToFix.end(); armorNamePair = next_pair)
+			{
+				++next_pair;
+				auto& armor = armorNamePair->first;
+				if (armor->armorWorn && armor->armorWorn->m_name)
+				{
+					auto& armorOldMeshName = armorNamePair->second;
+					std::string armorNewMeshName(armor->armorWorn->m_name);
+					// If the current name given by Skyrim is different from its original name...
+					// TODO what happens to the names when reattaching an armor?
+					if (strcmp(armorNewMeshName.c_str(), armorOldMeshName.c_str()))
+					{
+						auto& armorNameMap = armor->physicsFile.second;
+						auto& nameSetPair = armorNameMap.find(armorOldMeshName);
+						// ... and we found the old mesh name in the armor nameMap,...
+						if (nameSetPair != armorNameMap.end())
+						{
+							// We add the new mesh name to the list of mesh names for the original mesh name (sic).
+							nameSetPair->second.insert({ armorNewMeshName });
+							// We add a new entry in the armor nameMap.
+							armorNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
+							// This armor is fixed.
+							m_armorsToFix.erase(armorNamePair);
+						}
+					}
+				}
+			}
+	}
+
 	void ActorManager::onEvent(const ArmorAttachEvent& e)
 	{
 		// No armor is ever attached to a lurker skeleton, thus we don't need to test.
@@ -71,6 +103,8 @@ namespace hdt
 
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 		if (m_shutdown) return;
+
+		fixArmorNameMaps();
 
 		auto& skeleton = getSkeletonData(e.skeleton);
 		if (e.hasAttached)
@@ -106,6 +140,8 @@ namespace hdt
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 		if (m_shutdown) return;
 
+		fixArmorNameMaps();
+
 		Skeleton* s = get3rdPersonSkeleton(e.actor);
 		setHeadActiveIfNoHairArmor(e.actor, s);
 	}
@@ -133,6 +169,8 @@ namespace hdt
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 		if (m_shutdown) return;
 
+		fixArmorNameMaps();
+
 		setSkeletonsActive();
 
 		for (auto& i : m_skeletons)
@@ -147,8 +185,11 @@ namespace hdt
 		// It is better to drop it now, and let the next frame manage it.
 		// Moreover, dropping a locked part of the code allows to reduce the total wait times.
 		// Finally, some skse mods issue FrameEvents, this mechanism manages the case where they issue too many.
+		// TODO but we don't drop the frameEvent management in SkyrimPhysicsWorld, wtf?!
 		std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
 		if (!lock.owns_lock()) return;
+
+		fixArmorNameMaps();
 
 		setSkeletonsActive();
 	}
@@ -309,6 +350,8 @@ namespace hdt
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 		if (m_shutdown) return;
 
+		fixArmorNameMaps();
+
 		auto& skeleton = getSkeletonData(e.skeleton);
 		skeleton.npc = getNpcNode(e.skeleton);
 
@@ -357,6 +400,8 @@ namespace hdt
 
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 		if (m_shutdown) return;
+
+		fixArmorNameMaps();
 
 		auto& skeleton = getSkeletonData(e.skeleton);
 		skeleton.npc = npc;
@@ -616,13 +661,18 @@ namespace hdt
 #endif // _DEBUG
 
 		Armor& armor = armors.back();
+
+		// The name of the attachedNode provided here will have been changed by the Skyrim exe between this event and the next.
 		armor.armorWorn = attachedNode;
+		// That's why we set here the need to fix this armor in fixArmorNameMaps() (see its comment)
+		// to avoid this name change breaking processes like 'smp reset' when looking for the armor name in the armor nameMap.
+		ActorManager::m_armorsToFix[&armor] = attachedNode->m_name ? attachedNode->m_name : "";
 
 		if (!isFirstPersonSkeleton(skeleton))
 		{
 			std::unordered_map<IDStr, IDStr> renameMap = armor.renameMap;
 			// FIXME we probably could simplify this by using findNode as surely we don't attach Armors to lurkers skeleton?
-			auto system = SkyrimSystemCreator().createSystem(getNpcNode(skeleton), attachedNode, armor.physicsFile, std::move(renameMap));
+			auto system = SkyrimSystemCreator().createOrUpdateSystem(getNpcNode(skeleton), attachedNode, &armor.physicsFile, std::move(renameMap), nullptr);
 
 			if (system)
 			{
@@ -880,8 +930,7 @@ namespace hdt
 			if (!isFirstPersonSkeleton(skeleton))
 			{
 				std::unordered_map<IDStr, IDStr> renameMap = i.renameMap;
-
-				auto system = SkyrimSystemCreator().createSystem(npc, i.armorWorn, i.physicsFile, std::move(renameMap));
+				auto system = SkyrimSystemCreator().createOrUpdateSystem(npc, i.armorWorn, &i.physicsFile, std::move(renameMap), nullptr);
 
 				if (system)
 				{
@@ -950,8 +999,7 @@ namespace hdt
 				headPart.physicsFile.first.c_str());
 #endif // _DEBUG
 			physicsDupes.insert(headPart.physicsFile.first);
-			auto system = SkyrimSystemCreator().createSystem(npc, this->head.headNode, headPart.physicsFile,
-				std::move(renameMap));
+			auto system = SkyrimSystemCreator().createOrUpdateSystem(npc, this->head.headNode, &headPart.physicsFile, std::move(renameMap), nullptr);
 
 			if (system)
 			{

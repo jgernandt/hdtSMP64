@@ -175,8 +175,10 @@ namespace hdt
 		bool m_shutdown = false;
 		std::recursive_mutex m_lock;
 		std::vector<Skeleton> m_skeletons;
-
-
+		// @brief This map keys are pointers to the Armors requiring their name maps fixed (see fixArmorNameMaps()),
+		// because the name of the armor NiAVObject will be changed later by the Skyrim executable.
+		// The string is the first name attributed by the Skyrim executable, to be able to detect the change.
+		static std::map<Armor*, std::string> m_armorsToFix;
 
 		Skeleton& getSkeletonData(NiNode* skeleton);
 		ActorManager::Skeleton* get3rdPersonSkeleton(Actor* actor);
@@ -190,6 +192,34 @@ namespace hdt
 
 		static IDStr armorPrefix(IDType id);
 		static IDStr headPrefix(IDType id);
+
+		/*
+		fix: take into account the unexpected armors names changes done by the Skyrim executable.
+
+		We add smp physics to armors on the ArmorAttachEvent.
+		But when a smp reset happens, we can't go through the ArmorAttachEvent processing: no event is sent by the skyrim executable.
+		So for each known skeleton, and each of its known armors meshes, we reapply the related xml file.
+
+		Each Armor has in .physicsFile the applied xml file, the names of the meshes of the armor in the xml file / nif,
+		and for each mesh name the name(s) of the NiAVObject attached through the ArmorAttachEvent hook processing.
+
+		So by looking for the recorded NiAVObject names in the related skyrim models, we can find back the NiAVObject and reapply the related xml file to it.
+
+		But! The skyrim executable changes later the name of the NiAVObject passed as attachedNode through the ArmorAttachEvent hook.
+		So, when trying to find the recorded name in the existing objects, we don't find it anymore.
+
+		This bug happens for armors, but not for headparts, which names aren't changed by Skyrim on the fly.
+		https://github.com/DaymareOn/hdtSMP64/issues/84
+		This bug has happened since the original HDT-SMP, for all versions of Skyrim (well, I haven't checked on the VR version).
+
+		The implemented solution is to 1) when attaching an armor, record that the fix will need to be applied on this armor,
+		2) save the original name,
+		3) to be able to detect on following events when that the name has changed (ArmorAttachEvent, ItemUnequipEvent, FrameEvent, OpenMenuEvent)
+		   (checking that the fix needs to be applied is quick, and introducing the fix in all events allows to have it fixed asap),
+		4) and then add in.physicsfile the new name;
+		5) finally remove the information that a fix must be applied for this armor.
+		*/
+		void fixArmorNameMaps();
 
 		void onEvent(const ArmorAttachEvent& e) override;
 		void onEvent(const ArmorDetachEvent& e) override;

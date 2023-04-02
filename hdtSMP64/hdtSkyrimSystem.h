@@ -48,10 +48,7 @@ namespace hdt
 	{
 	public:
 		SkyrimSystemCreator();
-		Ref<SkyrimSystem> createSystem(NiNode* skeleton, NiAVObject* model, const DefaultBBP::PhysicsFile file,
-		                             std::unordered_map<IDStr, IDStr> renameMap);
-		Ref<SkyrimSystem> updateSystem(SkyrimSystem* old_system, NiNode* skeleton, NiAVObject* model, const DefaultBBP::PhysicsFile file,
-			std::unordered_map<IDStr, IDStr> renameMap);
+		Ref<SkyrimSystem> createOrUpdateSystem(NiNode* skeleton, NiAVObject* model, DefaultBBP::PhysicsFile *file, std::unordered_map<IDStr, IDStr> renameMap, SkyrimSystem* old_system);
 	protected:
 
 		using VertexOffsetMap = std::unordered_map<std::string, int>;
@@ -153,7 +150,7 @@ namespace hdt
 		std::unordered_map<IDStr, ConeTwistConstraintTemplate> m_coneTwistConstraintTemplates;
 		std::unordered_map<IDStr, std::shared_ptr<btCollisionShape>> m_shapes;
 
-		std::pair< Ref<SkyrimBody>, VertexOffsetMap > generateMeshBody(const std::string name, const DefaultBBP::NameSet& names);
+		std::pair< Ref<SkyrimBody>, VertexOffsetMap > generateMeshBody(const std::string name, DefaultBBP::NameSet* names);
 
 		void readFrameLerp(btTransform& tr);
 		void readBoneTemplate(BoneTemplate& dest);
@@ -169,7 +166,7 @@ namespace hdt
 		SkyrimBone* SkyrimSystemCreator::createBoneFromNodeName(const IDStr& bodyName, const IDStr& templateName = "", const bool readTemplate = false, SkyrimSystem* old_system = nullptr);
 		void SkyrimSystemCreator::readOrUpdateBone(SkyrimSystem* old_system = nullptr);
 		Ref<SkyrimBody> readPerVertexShape(DefaultBBP::NameMap meshNameMap);
-		Ref<SkyrimBody> readPerTriangleShape(DefaultBBP::NameMap meshNameMap);
+		Ref<SkyrimBody> readPerTriangleShape(DefaultBBP::NameMap* meshNameMap);
 		Ref<Generic6DofConstraint> readGenericConstraint();
 		Ref<StiffSpringConstraint> readStiffSpringConstraint();
 		Ref<ConeTwistConstraint> readConeTwistConstraint();
