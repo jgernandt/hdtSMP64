@@ -71,22 +71,25 @@ namespace hdt
 				if (armor->armorWorn && armor->armorWorn->m_name)
 				{
 					auto& armorOldMeshName = armorNamePair->second;
-					std::string armorNewMeshName(armor->armorWorn->m_name);
-					// If the current name given by Skyrim is different from its original name...
-					// TODO what happens to the names when reattaching an armor?
-					if (strcmp(armorNewMeshName.c_str(), armorOldMeshName.c_str()))
+					if (!armorOldMeshName.empty())
 					{
-						auto& armorNameMap = armor->physicsFile.second;
-						auto& nameSetPair = armorNameMap.find(armorOldMeshName);
-						// ... and we found the old mesh name in the armor nameMap,...
-						if (nameSetPair != armorNameMap.end())
+						std::string armorNewMeshName(armor->armorWorn->m_name);
+						// If the current name given by Skyrim is different from its original name...
+						// TODO what happens to the names when reattaching an armor?
+						if (strcmp(armorNewMeshName.c_str(), armorOldMeshName.c_str()))
 						{
-							// We add the new mesh name to the list of mesh names for the original mesh name (sic).
-							nameSetPair->second.insert({ armorNewMeshName });
-							// We add a new entry in the armor nameMap.
-							armorNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
-							// This armor is fixed.
-							m_armorsToFix.erase(armorNamePair);
+							auto& armorNameMap = armor->physicsFile.second;
+							auto& nameSetPair = armorNameMap.find(armorOldMeshName);
+							// ... and we found the old mesh name in the armor nameMap,...
+							if (nameSetPair != armorNameMap.end())
+							{
+								// We add the new mesh name to the list of mesh names for the original mesh name (sic).
+								nameSetPair->second.insert({ armorNewMeshName });
+								// We add a new entry in the armor nameMap.
+								armorNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
+								// This armor is fixed.
+								m_armorsToFix.erase(armorNamePair);
+							}
 						}
 					}
 				}
