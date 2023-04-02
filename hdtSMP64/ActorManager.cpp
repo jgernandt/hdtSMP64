@@ -666,7 +666,7 @@ namespace hdt
 		armor.armorWorn = attachedNode;
 		// That's why we set here the need to fix this armor in fixArmorNameMaps() (see its comment)
 		// to avoid this name change breaking processes like 'smp reset' when looking for the armor name in the armor nameMap.
-		ActorManager::m_armorsToFix[&armor] = attachedNode->m_name ? attachedNode->m_name : "";
+		ActorManager::instance()->m_armorsToFix[&armor] = attachedNode->m_name ? attachedNode->m_name : "";
 
 		if (!isFirstPersonSkeleton(skeleton))
 		{
