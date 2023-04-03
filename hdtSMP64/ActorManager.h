@@ -101,6 +101,11 @@ namespace hdt
 			Ref<IString> prefix;
 			Ref<NiAVObject> armorWorn;
 			std::unordered_map<IDStr, IDStr> renameMap;
+			// @brief This bool is set to true when the first name for the NiAVObject armor is attributed by the Skyrim executable,
+			// and set back to false the name map is fixed (see fixArmorNameMaps()),
+			bool mustFixNameMap = false;
+			// @brief The string is the first name attributed by the Skyrim executable, to be able to detect the change.
+			std::string armorCurrentMeshName = "";
 		};
 
 		struct Skeleton
@@ -239,11 +244,6 @@ namespace hdt
 
 		// @brief Depending on this setting, we avoid to calculate the physics of the PC when it is in 1st person view.
 		bool m_disable1stPersonViewPhysics = false;
-
-		// @brief This map keys are pointers to the Armors requiring their name maps fixed (see fixArmorNameMaps()),
-		// because the name of the armor NiAVObject will be changed later by the Skyrim executable.
-		// The string is the first name attributed by the Skyrim executable, to be able to detect the change.
-		std::map<Armor*, std::string> m_armorsToFix;
 
 	private:
 		void setSkeletonsActive();

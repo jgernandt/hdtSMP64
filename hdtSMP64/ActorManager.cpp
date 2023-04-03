@@ -63,37 +63,36 @@ namespace hdt
 
 	void ActorManager::fixArmorNameMaps()
 	{
-		if (m_armorsToFix.size())
-			for (auto& armorNamePair = m_armorsToFix.begin(), next_pair = armorNamePair; armorNamePair != m_armorsToFix.end(); armorNamePair = next_pair)
-			{
-				++next_pair;
-				auto& armor = armorNamePair->first;
-				if (armor->armorWorn && armor->armorWorn->m_name)
+		for (auto& skeleton : instance()->getSkeletons())
+			for (auto& armor : skeleton.getArmors())
+				if (armor.mustFixNameMap)
 				{
-					auto& armorOldMeshName = armorNamePair->second;
-					if (!armorOldMeshName.empty())
-					{
-						std::string armorNewMeshName(armor->armorWorn->m_name);
-						// If the current name given by Skyrim is different from its original name...
-						// TODO what happens to the names when reattaching an armor?
-						if (strcmp(armorNewMeshName.c_str(), armorOldMeshName.c_str()))
+					if (armor.armorWorn)
+						if (armor.armorWorn->m_name)
 						{
-							auto& armorNameMap = armor->physicsFile.second;
-							auto& nameSetPair = armorNameMap.find(armorOldMeshName);
-							// ... and we found the old mesh name in the armor nameMap,...
-							if (nameSetPair != armorNameMap.end())
+							std::string armorNewMeshName(armor.armorWorn->m_name);
+							if (!armorNewMeshName.empty() && armor.armorCurrentMeshName.compare(armorNewMeshName) != 0)
 							{
-								// We add the new mesh name to the list of mesh names for the original mesh name (sic).
-								nameSetPair->second.insert({ armorNewMeshName });
-								// We add a new entry in the armor nameMap.
-								armorNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
-								// This armor is fixed.
-								m_armorsToFix.erase(armorNamePair);
+								auto& armorNameMap = armor.physicsFile.second;
+								hdt::DefaultBBP::NameMap tempNameMap;
+								for (auto& [setName, set] : armorNameMap)
+									// ... and we found the old mesh name in the armor nameMap,...
+									if (armor.armorCurrentMeshName.compare(setName) == 0)
+									{
+										// We add the new mesh name to the list of mesh names for the original mesh name (sic).
+										set.insert({ armorNewMeshName });
+										// We plan a new entry in the armor nameMap.
+										tempNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
+										// This armor is fixed.
+										armor.mustFixNameMap = false;
+										armor.armorCurrentMeshName = armorNewMeshName;
+									}
+								// We add the planned entries.
+								for (auto& [setName, set] : tempNameMap)
+									armorNameMap.insert({ setName, set });
 							}
 						}
-					}
-				}
-			}
+				};
 	}
 
 	void ActorManager::onEvent(const ArmorAttachEvent& e)
@@ -669,7 +668,8 @@ namespace hdt
 		armor.armorWorn = attachedNode;
 		// That's why we set here the need to fix this armor in fixArmorNameMaps() (see its comment)
 		// to avoid this name change breaking processes like 'smp reset' when looking for the armor name in the armor nameMap.
-		ActorManager::instance()->m_armorsToFix[&armor] = attachedNode->m_name ? attachedNode->m_name : "";
+		armor.armorCurrentMeshName = attachedNode->m_name ? attachedNode->m_name : "";
+		armor.mustFixNameMap = true;
 
 		if (!isFirstPersonSkeleton(skeleton))
 		{
