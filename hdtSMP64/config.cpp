@@ -93,6 +93,8 @@ namespace hdt
 					SkyrimPhysicsWorld::get()->m_unclampedResetAngle = reader.readFloat();
 				else if (reader.GetLocalName() == "percentageOfFrameTime")
 					SkyrimPhysicsWorld::get()->m_percentageOfFrameTime = std::clamp(reader.readInt() * 10, 1, 1000);
+				else if (reader.GetLocalName() == "useRealTime")
+					SkyrimPhysicsWorld::get()->m_useRealTime = reader.readBool();
 #ifdef CUDA
 				else if (reader.GetLocalName() == "enableCuda")
 					CudaInterface::enableCuda = reader.readBool();

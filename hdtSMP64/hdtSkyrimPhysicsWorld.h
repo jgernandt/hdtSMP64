@@ -67,6 +67,7 @@ namespace hdt
 		// @a_smoothingSamples How many samples to smooth. Defaults to 8. Must be greater than 0. Value of 1 means no smoothing
 		void setWind(NiPoint3* a_direction, float a_scale = scaleSkyrim, uint32_t a_smoothingSamples = 8);
 
+		bool m_useRealTime = false;
 		int min_fps = 60;
 		int m_percentageOfFrameTime = 300; // percentage of time per frame doing hdt. Profiler shows 30% is reasonable. Out of 1000.
 		float m_timeTick = 1 / 60.f;

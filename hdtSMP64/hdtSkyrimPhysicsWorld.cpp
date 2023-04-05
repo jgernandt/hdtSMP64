@@ -288,7 +288,7 @@ namespace hdt
 		std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
 		if (!lock.owns_lock()) return;
 
-		float interval = *(float*)(RelocationManager::s_baseAddr + offset::GameStepTimer_SlowTime);
+		float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
 
 		if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
 		{

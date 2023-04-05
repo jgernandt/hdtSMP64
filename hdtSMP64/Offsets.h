@@ -35,12 +35,13 @@ namespace hdt
 		struct offsetData
 		{
 			int id;
-			uintptr_t V[9];
+			uintptr_t V[10];
 		};
 
 		struct
 		{
 			offsetData GameStepTimer_SlowTime;
+			offsetData GameStepTimer_RealTime;
 			offsetData ArmorAttachFunction;
 			offsetData ItemUnequipFunction;
 			offsetData BSFaceGenNiNode_SkinAllGeometry;
@@ -56,6 +57,7 @@ namespace hdt
 		constexpr functionsOffsets =
 		{
 			{ 410199, { 0x030C3A08, 0x02F6B948, 0x030064C8, 0x030064c8, 0x03007708, 0x03007708, 0x03006808, 0x03006808, 0x030007c8 }},
+			{ 0,      { 0x030C3A0C, 0x02F6B94C, 0x00000000, 0x00000000, 0x00000000, 0x0300770C, 0x00000000, 0x0300680C, 0x030007cc }},
 			{ 15712,  { 0x001DB9E0, 0x001CAFB0, 0x001D6740, 0x001d66b0, 0x001d66a0, 0x001d66a0, 0x001d83b0, 0x001d83b0, 0x001d81b0 }},
 			{ 0,      { 0x006411a0, 0x00638190, 0x00000000, 0x00000000, 0x00000000, 0x0065eca0, 0x00000000, 0x00670210, 0x0066fd10 }},
 			{ 26986,  { 0x003e8120, 0x003D87B0, 0x003F08C0, 0x003f0830, 0x003f09c0, 0x003f0830, 0x003f2990, 0x003f2990, 0x003f2920 }},
@@ -69,6 +71,7 @@ namespace hdt
 		};
 
 		constexpr auto GameStepTimer_SlowTime             = functionsOffsets.GameStepTimer_SlowTime            .V[CURRENTVERSION];
+		constexpr auto GameStepTimer_RealTime             = functionsOffsets.GameStepTimer_RealTime            .V[CURRENTVERSION];
 		constexpr auto ArmorAttachFunction                = functionsOffsets.ArmorAttachFunction               .V[CURRENTVERSION];
 		constexpr auto ItemUnequipFunction				  = functionsOffsets.ItemUnequipFunction			   .V[CURRENTVERSION];
 		constexpr auto BSFaceGenNiNode_SkinAllGeometry    = functionsOffsets.BSFaceGenNiNode_SkinAllGeometry   .V[CURRENTVERSION];

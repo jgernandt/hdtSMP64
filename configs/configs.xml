@@ -68,6 +68,26 @@
     -->
     <unclampedResetAngle>130.0</unclampedResetAngle>
 
+    <!-- ######################### CLOCK ################################## -->
+
+    <!--
+      useRealTime: (boolean) when enabled, use the RealTime clock instead of
+      the WorldTime clock.
+      This is quite a conceptual change: the physics are calculated not
+      depending on what we think is the inner game clock, but depending on what we
+      think is the external real clock. Theoretically this should be a worse choice,
+      as we calculate physics for the game world with its own world clock. But the
+      preliminary tests show a better stability of the physics simulation when the
+      game time is strongly slowed, when the fps are high (for example 100+), and of
+      course with a combination of both. My hypothesis for this better physics
+      simulation is that the inner game clock has a larger error margin / a
+      larger deviation than the real world clock, and that this causes
+      artifacts in the physics simulation.
+      Players tests will indicate if this is a choice to keep.
+      If no value is set, default is false.
+    -->
+    <useRealTime>false</useRealTime>
+
     <!-- ################# MAX SKELETONS NUMBER ########################### -->
 
     <!--
