@@ -64,41 +64,43 @@ namespace hdt
 	void ActorManager::fixArmorNameMaps()
 	{
 		auto& skeletons = instance()->getSkeletons();
-		concurrency::parallel_for_each(skeletons.begin(), skeletons.end(), 
-			[&](Skeleton& skeleton) {
+		for (auto& skeleton : skeletons)
+			if (skeleton.mustFixOneArmorMap)
+			{
 				auto& armors = skeleton.getArmors();
-				concurrency::parallel_for_each(armors.begin(), armors.end(),
-					[&](Armor& armor) {
-						if (armor.mustFixNameMap)
-						{
-							if (armor.armorWorn)
-								if (armor.armorWorn->m_name)
+				for (auto& armor : armors)
+				{
+					if (armor.mustFixNameMap)
+					{
+						if (armor.armorWorn)
+							if (armor.armorWorn->m_name)
+							{
+								std::string armorNewMeshName(armor.armorWorn->m_name);
+								if (!armorNewMeshName.empty() && armor.armorCurrentMeshName.compare(armorNewMeshName) != 0)
 								{
-									std::string armorNewMeshName(armor.armorWorn->m_name);
-									if (!armorNewMeshName.empty() && armor.armorCurrentMeshName.compare(armorNewMeshName) != 0)
-									{
-										auto& armorNameMap = armor.physicsFile.second;
-										hdt::DefaultBBP::NameMap tempNameMap;
-										for (auto& [setName, set] : armorNameMap)
-											// ... and we found the old mesh name in the armor nameMap,...
-											if (armor.armorCurrentMeshName.compare(setName) == 0)
-											{
-												// We add the new mesh name to the list of mesh names for the original mesh name (sic).
-												set.insert({ armorNewMeshName });
-												// We plan a new entry in the armor nameMap.
-												tempNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
-												// This armor is fixed.
-												armor.mustFixNameMap = false;
-												armor.armorCurrentMeshName = armorNewMeshName;
-											}
-										// We add the planned entries.
-										for (auto& [setName, set] : tempNameMap)
-											armorNameMap.insert({ setName, set });
-									}
+									auto& armorNameMap = armor.physicsFile.second;
+									hdt::DefaultBBP::NameMap tempNameMap;
+									for (auto& [setName, set] : armorNameMap)
+										// ... and we found the old mesh name in the armor nameMap,...
+										if (armor.armorCurrentMeshName.compare(setName) == 0)
+										{
+											// We add the new mesh name to the list of mesh names for the original mesh name (sic).
+											set.insert({ armorNewMeshName });
+											// We plan a new entry in the armor nameMap.
+											tempNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
+											// This armor is fixed.
+											armor.mustFixNameMap = false;
+											armor.armorCurrentMeshName = armorNewMeshName;
+										}
+									// We add the planned entries.
+									for (auto& [setName, set] : tempNameMap)
+										armorNameMap.insert({ setName, set });
 								}
-						}
-					});
-			});
+							}
+					}
+				}
+				skeleton.mustFixOneArmorMap = false;
+			}
 	}
 
 	void ActorManager::onEvent(const ArmorAttachEvent& e)
@@ -676,6 +678,7 @@ namespace hdt
 		// to avoid this name change breaking processes like 'smp reset' when looking for the armor name in the armor nameMap.
 		armor.armorCurrentMeshName = attachedNode->m_name ? attachedNode->m_name : "";
 		armor.mustFixNameMap = true;
+		mustFixOneArmorMap = true;
 
 		if (!isFirstPersonSkeleton(skeleton))
 		{

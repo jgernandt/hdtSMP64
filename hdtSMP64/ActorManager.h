@@ -115,6 +115,7 @@ namespace hdt
 			Ref<NiNode> npc;
 			Head head;
 			SkeletonState state;
+			bool mustFixOneArmorMap = false;
 
 			std::string name();
 			void addArmor(NiNode* armorModel);
