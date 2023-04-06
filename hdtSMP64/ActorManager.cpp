@@ -63,36 +63,42 @@ namespace hdt
 
 	void ActorManager::fixArmorNameMaps()
 	{
-		for (auto& skeleton : instance()->getSkeletons())
-			for (auto& armor : skeleton.getArmors())
-				if (armor.mustFixNameMap)
-				{
-					if (armor.armorWorn)
-						if (armor.armorWorn->m_name)
+		auto& skeletons = instance()->getSkeletons();
+		concurrency::parallel_for_each(skeletons.begin(), skeletons.end(), 
+			[&](Skeleton& skeleton) {
+				auto& armors = skeleton.getArmors();
+				concurrency::parallel_for_each(armors.begin(), armors.end(),
+					[&](Armor& armor) {
+						if (armor.mustFixNameMap)
 						{
-							std::string armorNewMeshName(armor.armorWorn->m_name);
-							if (!armorNewMeshName.empty() && armor.armorCurrentMeshName.compare(armorNewMeshName) != 0)
-							{
-								auto& armorNameMap = armor.physicsFile.second;
-								hdt::DefaultBBP::NameMap tempNameMap;
-								for (auto& [setName, set] : armorNameMap)
-									// ... and we found the old mesh name in the armor nameMap,...
-									if (armor.armorCurrentMeshName.compare(setName) == 0)
+							if (armor.armorWorn)
+								if (armor.armorWorn->m_name)
+								{
+									std::string armorNewMeshName(armor.armorWorn->m_name);
+									if (!armorNewMeshName.empty() && armor.armorCurrentMeshName.compare(armorNewMeshName) != 0)
 									{
-										// We add the new mesh name to the list of mesh names for the original mesh name (sic).
-										set.insert({ armorNewMeshName });
-										// We plan a new entry in the armor nameMap.
-										tempNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
-										// This armor is fixed.
-										armor.mustFixNameMap = false;
-										armor.armorCurrentMeshName = armorNewMeshName;
+										auto& armorNameMap = armor.physicsFile.second;
+										hdt::DefaultBBP::NameMap tempNameMap;
+										for (auto& [setName, set] : armorNameMap)
+											// ... and we found the old mesh name in the armor nameMap,...
+											if (armor.armorCurrentMeshName.compare(setName) == 0)
+											{
+												// We add the new mesh name to the list of mesh names for the original mesh name (sic).
+												set.insert({ armorNewMeshName });
+												// We plan a new entry in the armor nameMap.
+												tempNameMap.insert({ armorNewMeshName, { armorNewMeshName } });
+												// This armor is fixed.
+												armor.mustFixNameMap = false;
+												armor.armorCurrentMeshName = armorNewMeshName;
+											}
+										// We add the planned entries.
+										for (auto& [setName, set] : tempNameMap)
+											armorNameMap.insert({ setName, set });
 									}
-								// We add the planned entries.
-								for (auto& [setName, set] : tempNameMap)
-									armorNameMap.insert({ setName, set });
-							}
+								}
 						}
-				};
+					});
+			});
 	}
 
 	void ActorManager::onEvent(const ArmorAttachEvent& e)
@@ -232,7 +238,7 @@ namespace hdt
 			});
 
 		// We sort the skeletons depending on the angle and distance.
-		std::sort(m_skeletons.begin(), m_skeletons.end(),
+		concurrency::parallel_sort(m_skeletons.begin(), m_skeletons.end(),
 			[](auto&& a_lhs, auto&& a_rhs) {
 				auto cr = a_rhs.m_cosAngleFromCameraDirectionTimesSkeletonDistance;
 				auto cl = a_lhs.m_cosAngleFromCameraDirectionTimesSkeletonDistance;
