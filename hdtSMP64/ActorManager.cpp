@@ -189,16 +189,7 @@ namespace hdt
 
 	void ActorManager::onEvent(const FrameEvent& e)
 	{
-		// Other events have to be managed. The FrameEvent is the only event that we can drop,
-		// we always have one later where we'll be able to manage the passed time.
-		// We drop this execution when the lock is already taken; in that case, we would execute the code later.
-		// It is better to drop it now, and let the next frame manage it.
-		// Moreover, dropping a locked part of the code allows to reduce the total wait times.
-		// Finally, some skse mods issue FrameEvents, this mechanism manages the case where they issue too many.
-		// TODO but we don't drop the frameEvent management in SkyrimPhysicsWorld, wtf?!
-		std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
-		if (!lock.owns_lock()) return;
-		//std::lock_guard<decltype(m_lock)> l(m_lock);
+		std::lock_guard<decltype(m_lock)> l(m_lock);
 
 		fixArmorNameMaps();
 
@@ -277,7 +268,7 @@ namespace hdt
 				i.clear();
 				i.skeleton = nullptr;
 			}
-			else if (i.hasPhysics && i.updateAttachedState(playerCell, false/*activeSkeletons >= maxActiveSkeletons*/)) {
+			else if (i.hasPhysics && i.updateAttachedState(playerCell, activeSkeletons >= maxActiveSkeletons)) {
 				activeSkeletons++;
 				//check wind obstructions
 				const auto world = SkyrimPhysicsWorld::get();

@@ -102,5 +102,6 @@ namespace hdt
 		float m_averageInterval;
 		long m_delay = 0;
 		float lastProcessingTime = 0;
+		float interval = 0.f;
 	};
 }

@@ -5,9 +5,6 @@
 
 #include "skse64/GameMenus.h"
 
-#include <chrono>
-#include <thread>
-
 namespace hdt
 {
 	static const float* timeStamp = (float*)0x12E355C;
@@ -293,12 +290,12 @@ namespace hdt
 		//std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
 		//if (!lock.owns_lock()) return;
 		m_tasks.wait();
-		float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
+
 		m_tasks.run([&]()
 		{
-			//std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
-			//if (!lock.owns_lock()) return;
 			std::lock_guard<decltype(m_lock)> l(m_lock);
+
+			interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
 
 			if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
 				 doUpdate(interval);
