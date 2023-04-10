@@ -80,7 +80,7 @@ namespace hdt
 
 			// No need to calculate physics when too little time has passed (time exceptionally short since last computation).
 			// This magic value directly impacts the number of computations and the time cost of the mod...
-			if (m_accumulatedInterval * 2.0f > tick)
+			//if (m_accumulatedInterval * 2.0f > tick)
 			{
 				// The interval is limited to a configurable number of substeps, by default 4.
 				// Additional substeps happens when there is a very sudden slowdown, or when fps is lower than min-fps,
@@ -284,20 +284,23 @@ namespace hdt
 		else if (!(e.gamePaused || mm->IsGamePaused()) && m_suspended)
 			resume();
 
+		//std::lock_guard<decltype(m_lock)> l(m_lock);
 		// See comment in void ActorManager::onEvent(const FrameEvent& e) about why try_to_lock on FrameEvent.
-		std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
-		if (!lock.owns_lock()) return;
+		//std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
+		//if (!lock.owns_lock()) return;
 
-		float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
+		m_tasks.wait();
+		m_tasks.run([&]()
+		{
+			std::lock_guard<decltype(m_lock)> l(m_lock);
 
-		if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
-		{
-			doUpdate(interval);
-		}
-		else if (m_isStasis || (m_suspended && !m_loading))
-		{
-			writeTransform();
-		}
+			float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
+
+			if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
+				 doUpdate(interval);
+			else if (m_isStasis || (m_suspended && !m_loading))
+				writeTransform();
+		});
 	}
 
 	void SkyrimPhysicsWorld::onEvent(const ShutdownEvent& e)
