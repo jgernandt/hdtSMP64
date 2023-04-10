@@ -5,6 +5,9 @@
 
 #include "skse64/GameMenus.h"
 
+#include <chrono>
+#include <thread>
+
 namespace hdt
 {
 	static const float* timeStamp = (float*)0x12E355C;
@@ -111,7 +114,7 @@ namespace hdt
 		int64_t endTime = ticks.QuadPart;
 		QueryPerformanceFrequency(&ticks);
 		// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
-		float lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+		lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
 		m_averageProcessingTime = (m_averageProcessingTime + lastProcessingTime) * 0.5;
 	}
 
@@ -286,21 +289,30 @@ namespace hdt
 
 		//std::lock_guard<decltype(m_lock)> l(m_lock);
 		// See comment in void ActorManager::onEvent(const FrameEvent& e) about why try_to_lock on FrameEvent.
+
 		//std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
 		//if (!lock.owns_lock()) return;
-
 		m_tasks.wait();
+		float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
 		m_tasks.run([&]()
 		{
+			//std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
+			//if (!lock.owns_lock()) return;
 			std::lock_guard<decltype(m_lock)> l(m_lock);
-
-			float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
 
 			if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
 				 doUpdate(interval);
 			else if (m_isStasis || (m_suspended && !m_loading))
 				writeTransform();
 		});
+
+		if (lastProcessingTime > .15 * 1000 * interval)
+			m_delay++;
+		else if (m_delay > 0)
+			m_delay--;
+		_MESSAGE("m_averageProcessingTime:%f m_averageInterval:%f m_delay:%d", lastProcessingTime, 1000 * interval, m_delay);
+		if (m_delay)
+			std::this_thread::sleep_for(std::chrono::milliseconds(m_delay));
 	}
 
 	void SkyrimPhysicsWorld::onEvent(const ShutdownEvent& e)

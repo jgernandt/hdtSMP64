@@ -196,9 +196,9 @@ namespace hdt
 		// Moreover, dropping a locked part of the code allows to reduce the total wait times.
 		// Finally, some skse mods issue FrameEvents, this mechanism manages the case where they issue too many.
 		// TODO but we don't drop the frameEvent management in SkyrimPhysicsWorld, wtf?!
-		//std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
-		//if (!lock.owns_lock()) return;
-		std::lock_guard<decltype(m_lock)> l(m_lock);
+		std::unique_lock<decltype(m_lock)> lock(m_lock, std::try_to_lock);
+		if (!lock.owns_lock()) return;
+		//std::lock_guard<decltype(m_lock)> l(m_lock);
 
 		fixArmorNameMaps();
 
