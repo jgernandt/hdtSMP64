@@ -578,6 +578,7 @@ extern "C" {
 
 		hdt::g_frameEventDispatcher.addListener(hdt::ActorManager::instance());
 		hdt::g_frameEventDispatcher.addListener(hdt::SkyrimPhysicsWorld::get());
+		hdt::g_frameSyncEventDispatcher.addListener(hdt::SkyrimPhysicsWorld::get());
 		hdt::g_shutdownEventDispatcher.addListener(hdt::ActorManager::instance());
 		hdt::g_shutdownEventDispatcher.addListener(hdt::SkyrimPhysicsWorld::get());
 		hdt::g_armorAttachEventDispatcher.addListener(hdt::ActorManager::instance());

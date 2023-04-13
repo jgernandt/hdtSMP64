@@ -35,7 +35,7 @@ namespace hdt
 		struct offsetData
 		{
 			int id;
-			uintptr_t V[10];
+			uintptr_t V[11];
 		};
 
 		struct
@@ -52,6 +52,7 @@ namespace hdt
 			offsetData BSFaceGenModelExtraData_BoneLimit;
 			offsetData Actor_CalculateLOS;
 			offsetData SkyPointer;
+			offsetData FrameSyncPoint;
 		}
 
 		constexpr functionsOffsets =
@@ -62,12 +63,14 @@ namespace hdt
 			{ 0,      { 0x006411a0, 0x00638190, 0x00000000, 0x00000000, 0x00000000, 0x0065eca0, 0x00000000, 0x00670210, 0x0066fd10 }},
 			{ 26986,  { 0x003e8120, 0x003D87B0, 0x003F08C0, 0x003f0830, 0x003f09c0, 0x003f0830, 0x003f2990, 0x003f2990, 0x003f2920 }},
 			{ 26987,  { 0x003e81b0, 0x003D8840, 0x003F0A50, 0x003f09c0, 0x003f0b50, 0x003f09c0, 0x003f2b20, 0x003f2b20, 0x003f2ab0 }},
-			{ 36564,  { 0x005BAB10, 0x005B2FF0, 0x005D9F50, 0x005D9CC0, 0x005dae80, 0x005dace0, 0x005ec310, 0x005ec240, 0x005ebd40 }},
+			{ 36564,  { 0x005BAB10, 0x005B2FF0, 0x005D9F50, 0x005D9CC0, 0x005dae80, 0x005dace0, 0x005ec310, 0x005ec240, 0x005ebd40 }}, // Original: Main::Update_1405B2FF0 after Line 234
+			//{ 36564,  { 0x005BAB10, 0x005765d0, 0x005D9F50, 0x005D9CC0, 0x005dae80, 0x005dace0, 0x005ec310, 0x005ec240, 0x005ebd40 }}, // Main::Update_1405B2FF0 after Line 190: CTD
 			{ 105623, { 0x012CC630, 0x01293D20, 0x013B9A90, 0x013b99f0, 0x013ba910, 0x013ba9a0, 0x013b8230, 0x013b8160, 0x013b33e0 }},//no longer used
 			{ 24726,  { 0x00372b30, 0x00363210, 0x0037A240, 0x0037a1b0, 0x0037a340, 0x0037a1b0, 0x0037c1e0, 0x0037c1e0, 0x0037c170 }},
 			{ 24313,  { 0x0037ae28, 0x0036B4C8, 0x00000000, 0x00000000, 0x00000000, 0x00382365, 0x00000000, 0x00384495, 0x00384425 }},//id:24836 + 0x75
 			{ 37770,  { 0x00605b10, 0x005fd2c0, 0x006241F0, 0x00000000, 0x00000000, 0x00624f90, 0x00000000, 0x006364f0, 0x00635ff0 }},
 			{ 401652, { 0x02FC62C8, 0x02f013d8, 0x02F9BAF8, 0x00000000, 0x00000000, 0x02f9cc80, 0x00000000, 0x02f9b000, 0x02f95000 }},
+			{ 0,      { 0x00000000, 0x005b6320, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000 }}, // Main::Update_1405B2FF0 before Line 26
 		};
 
 		constexpr auto GameStepTimer_SlowTime             = functionsOffsets.GameStepTimer_SlowTime            .V[CURRENTVERSION];
@@ -82,6 +85,7 @@ namespace hdt
 		constexpr auto BSFaceGenModelExtraData_BoneLimit  = functionsOffsets.BSFaceGenModelExtraData_BoneLimit .V[CURRENTVERSION];
 		constexpr auto Actor_CalculateLOS                 = functionsOffsets.Actor_CalculateLOS                .V[CURRENTVERSION];
 		constexpr auto SkyPointer                         = functionsOffsets.SkyPointer                        .V[CURRENTVERSION];
+		constexpr auto FrameSyncPoint                     = functionsOffsets.FrameSyncPoint                    .V[CURRENTVERSION];
 
 		// .text:00000001403D88D4                 cmp     ebx, 8
 		// patch 8 -> 7

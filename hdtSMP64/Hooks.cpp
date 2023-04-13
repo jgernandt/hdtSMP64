@@ -299,6 +299,15 @@ namespace hdt
 	static_assert(offsetof(UnkEngine, freezeTime) == 0x0e);
 #endif
 
+	struct SyncFrame
+	{
+		MEMBER_FN_PREFIX(SyncFrame);
+
+		DEFINE_MEMBER_FN_HOOK(onFrameSync, void, offset::FrameSyncPoint);
+
+		void onFrameSync();
+	};
+
 	void UnkEngine::onFrame()
 	{
 		CALL_MEMBER_FN(this, onFrame)();
@@ -315,6 +324,13 @@ namespace hdt
 		}
 	}
 
+	void SyncFrame::onFrameSync()
+	{
+		g_frameSyncEventDispatcher.dispatch(FrameSyncEvent());
+
+		CALL_MEMBER_FN(this, onFrameSync)();
+	}
+
 	void hookEngine()
 	{
 		DetourAttach((void**)UnkEngine::_onFrame_GetPtrAddr(), (void*)GetFnAddr(&UnkEngine::onFrame));
@@ -325,6 +341,16 @@ namespace hdt
 		DetourDetach((void**)UnkEngine::_onFrame_GetPtrAddr(), (void*)GetFnAddr(&UnkEngine::onFrame));
 	}
 
+	void hookSyncFrame()
+	{
+		DetourAttach((void**)SyncFrame::_onFrameSync_GetPtrAddr(), (void*)GetFnAddr(&SyncFrame::onFrameSync));
+	}
+
+	void unhookSyncFrame()
+	{
+		DetourDetach((void**)SyncFrame::_onFrameSync_GetPtrAddr(), (void*)GetFnAddr(&SyncFrame::onFrameSync));
+	}
+
 	void hookAll()
 	{
 		DetourRestoreAfterWith();
@@ -333,6 +359,7 @@ namespace hdt
 		hookAttachArmor();
 		hookDetachArmor();
 		hookFaceGen();
+		hookSyncFrame();
 		DetourTransactionCommit();
 	}
 
@@ -344,6 +371,7 @@ namespace hdt
 		unhookAttachArmor();
 		unhookDetachArmor();
 		unhookFaceGen();
+		unhookSyncFrame();
 		DetourTransactionCommit();
 	}
 }
