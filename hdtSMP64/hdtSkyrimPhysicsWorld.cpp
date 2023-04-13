@@ -297,9 +297,6 @@ namespace hdt
 
 			interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
 
-			// TODO remove pseudo-cost
-			std::this_thread::sleep_for(std::chrono::milliseconds(4));
-
 			if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
 				 doUpdate(interval);
 			else if (m_isStasis || (m_suspended && !m_loading))

@@ -303,9 +303,9 @@ namespace hdt
 	{
 		MEMBER_FN_PREFIX(SyncFrame);
 
-		DEFINE_MEMBER_FN_HOOK(onFrameSync, void, offset::FrameSyncPoint);
+		DEFINE_MEMBER_FN_HOOK(onFrameSync, void, offset::FrameSyncPoint, INT64 param_1);
 
-		void onFrameSync();
+		void onFrameSync(INT64 param_1);
 	};
 
 	void UnkEngine::onFrame()
@@ -324,11 +324,11 @@ namespace hdt
 		}
 	}
 
-	void SyncFrame::onFrameSync()
+	void SyncFrame::onFrameSync(INT64 param_1)
 	{
-		g_frameSyncEventDispatcher.dispatch(FrameSyncEvent());
+		CALL_MEMBER_FN(this, onFrameSync)(param_1);
 
-		CALL_MEMBER_FN(this, onFrameSync)();
+		g_frameSyncEventDispatcher.dispatch(FrameSyncEvent());
 	}
 
 	void hookEngine()
