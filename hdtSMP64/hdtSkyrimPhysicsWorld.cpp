@@ -286,7 +286,7 @@ namespace hdt
 
 		m_tasks.wait();
 
-		m_tasks.run([&]()
+		m_tasks.run([this]()
 		{
 			std::lock_guard<decltype(m_lock)> l(m_lock);
 
