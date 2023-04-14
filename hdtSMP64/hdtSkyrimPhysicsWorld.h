@@ -101,8 +101,5 @@ namespace hdt
 		std::atomic_bool m_loading;
 		float m_accumulatedInterval;
 		float m_averageInterval;
-		long m_delay = 0;
-		float lastProcessingTime = 0;
-		float interval = 0.f;
 	};
 }
