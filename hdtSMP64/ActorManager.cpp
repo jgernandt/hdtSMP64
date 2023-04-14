@@ -232,7 +232,7 @@ namespace hdt
 			});
 
 		// We sort the skeletons depending on the angle and distance.
-		concurrency::parallel_sort(m_skeletons.begin(), m_skeletons.end(),
+		std::sort(m_skeletons.begin(), m_skeletons.end(),
 			[](auto&& a_lhs, auto&& a_rhs) {
 				auto cr = a_rhs.m_cosAngleFromCameraDirectionTimesSkeletonDistance;
 				auto cl = a_lhs.m_cosAngleFromCameraDirectionTimesSkeletonDistance;
