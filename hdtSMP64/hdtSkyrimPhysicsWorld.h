@@ -101,5 +101,7 @@ namespace hdt
 		std::atomic_bool m_loading;
 		float m_accumulatedInterval;
 		float m_averageInterval;
+		int m_framesCount = 0;
+		float m_averageSMPCostTime = 0;
 	};
 }

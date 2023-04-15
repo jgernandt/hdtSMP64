@@ -301,7 +301,27 @@ namespace hdt
 
 	void SkyrimPhysicsWorld::onEvent(const FrameSyncEvent& e)
 	{
-		m_tasks.wait();
+		bool doMetrics = (!isSuspended() &&  // do not do metrics while paused
+			m_framesCount++ % min_fps == 0); // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
+		if (doMetrics)
+		{
+
+			LARGE_INTEGER ticks;
+			QueryPerformanceCounter(&ticks);
+			int64_t startTime = ticks.QuadPart;
+
+			m_tasks.wait();
+
+			QueryPerformanceCounter(&ticks);
+			int64_t endTime = ticks.QuadPart;
+			QueryPerformanceFrequency(&ticks);
+			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
+			float lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+			m_averageSMPCostTime = (m_averageSMPCostTime + lastProcessingTime) * .5;
+			_DMESSAGE("smp cost in main loop (msecs): %2.2g saved: %2.2f%%", m_averageSMPCostTime, (100. * (m_averageProcessingTime - m_averageSMPCostTime)) / m_averageProcessingTime);
+		}
+		else
+			m_tasks.wait();
 	}
 
 	void SkyrimPhysicsWorld::onEvent(const ShutdownEvent& e)
