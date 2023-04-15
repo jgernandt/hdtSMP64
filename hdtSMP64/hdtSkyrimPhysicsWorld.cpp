@@ -301,8 +301,9 @@ namespace hdt
 
 	void SkyrimPhysicsWorld::onEvent(const FrameSyncEvent& e)
 	{
-		bool doMetrics = (!isSuspended() &&  // do not do metrics while paused
-			m_framesCount++ % min_fps == 0); // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
+		bool doMetrics = m_logLevel == IDebugLog::LogLevel::kLevel_DebugMessage && // do metrics only for debug logs
+			!isSuspended() &&                                                      // do not do metrics while paused
+			m_framesCount++ % min_fps == 0;                                        // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
 		if (doMetrics)
 		{
 

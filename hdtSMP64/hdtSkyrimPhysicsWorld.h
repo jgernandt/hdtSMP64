@@ -83,6 +83,7 @@ namespace hdt
 		float m_averageProcessingTime = 0;
 		bool disabled = false;
 		uint8_t m_resetPc;
+		IDebugLog::LogLevel m_logLevel;
 
 		//wind settings
 		bool m_enableWind = true;
