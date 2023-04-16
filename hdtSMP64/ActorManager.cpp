@@ -317,7 +317,7 @@ namespace hdt
 		if (!world->isSuspended() && // do not do metrics while paused
 			frameCount++ % world->min_fps == 0) // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
 		{
-			const auto processing_time = world->m_averageProcessingTime;
+			const auto processing_time = world->m_averageSMPCostTime;
 			// 30% of processing time is in hdt per profiling;
 			// Setting it higher provides more time for hdt processing and can activate more skeletons.
 			const auto target_time = world->m_timeTick * world->m_percentageOfFrameTime;

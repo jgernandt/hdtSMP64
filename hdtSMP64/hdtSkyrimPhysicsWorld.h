@@ -81,6 +81,7 @@ namespace hdt
 		bool m_unclampedResets = true;
 		float m_unclampedResetAngle = 120.0f;
 		float m_averageProcessingTime = 0;
+		float m_averageSMPCostTime = 0;
 		bool disabled = false;
 		uint8_t m_resetPc;
 		IDebugLog::LogLevel m_logLevel;
@@ -103,7 +104,6 @@ namespace hdt
 		float m_accumulatedInterval;
 		float m_averageInterval;
 		int m_framesCount = 0;
-		float m_averageSMPCostTime = 0;
 		bool m_doMetrics = false;
 		float m_lastProcessingTime = 0;
 	};

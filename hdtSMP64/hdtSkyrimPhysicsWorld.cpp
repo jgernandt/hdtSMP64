@@ -284,9 +284,8 @@ namespace hdt
 		else if (!(e.gamePaused || mm->IsGamePaused()) && m_suspended)
 			resume();
 
-		m_doMetrics = m_logLevel == IDebugLog::LogLevel::kLevel_DebugMessage && // do metrics only for debug logs
-			!isSuspended() &&                                                   // do not do metrics while paused
-			m_framesCount++ % min_fps == 0;                                     // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
+		m_doMetrics = !isSuspended() &&               // do not do metrics while paused
+			          m_framesCount++ % min_fps == 0; // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
 
 		LARGE_INTEGER ticks;
 		int64_t startTime = 0;
