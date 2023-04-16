@@ -179,6 +179,8 @@ namespace hdt
 		std::lock_guard<decltype(m_lock)> l(m_lock);
 		if (m_shutdown) return;
 
+		_DMESSAGE("Processing MenuOpenCloseEvent");
+
 		fixArmorNameMaps();
 
 		setSkeletonsActive();
