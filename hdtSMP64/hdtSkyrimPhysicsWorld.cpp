@@ -284,6 +284,20 @@ namespace hdt
 		else if (!(e.gamePaused || mm->IsGamePaused()) && m_suspended)
 			resume();
 
+		m_doMetrics = m_logLevel == IDebugLog::LogLevel::kLevel_DebugMessage && // do metrics only for debug logs
+			!isSuspended() &&                                                   // do not do metrics while paused
+			m_framesCount++ % min_fps == 0;                                     // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
+
+		LARGE_INTEGER ticks;
+		int64_t startTime = 0;
+		int64_t endTime = 0;
+		float lastProcessingTime = 0.f;
+		if (m_doMetrics)
+		{
+			QueryPerformanceCounter(&ticks);
+			startTime = ticks.QuadPart;
+		}
+
 		m_tasks.wait();
 
 		m_tasks.run([this]()
@@ -297,16 +311,21 @@ namespace hdt
 			else if (m_isStasis || (m_suspended && !m_loading))
 				writeTransform();
 		});
+
+		if (m_doMetrics)
+		{
+			QueryPerformanceCounter(&ticks);
+			endTime = ticks.QuadPart;
+			QueryPerformanceFrequency(&ticks);
+			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
+			m_lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+		}
 	}
 
 	void SkyrimPhysicsWorld::onEvent(const FrameSyncEvent& e)
 	{
-		bool doMetrics = m_logLevel == IDebugLog::LogLevel::kLevel_DebugMessage && // do metrics only for debug logs
-			!isSuspended() &&                                                      // do not do metrics while paused
-			m_framesCount++ % min_fps == 0;                                        // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
-		if (doMetrics)
+		if (m_doMetrics)
 		{
-
 			LARGE_INTEGER ticks;
 			QueryPerformanceCounter(&ticks);
 			int64_t startTime = ticks.QuadPart;
@@ -317,8 +336,8 @@ namespace hdt
 			int64_t endTime = ticks.QuadPart;
 			QueryPerformanceFrequency(&ticks);
 			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
-			float lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
-			m_averageSMPCostTime = (m_averageSMPCostTime + lastProcessingTime) * .5;
+			m_lastProcessingTime += (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+			m_averageSMPCostTime = (m_averageSMPCostTime + m_lastProcessingTime) * .5;
 			_DMESSAGE("smp cost in main loop (msecs): %2.2g saved: %2.2f%%", m_averageSMPCostTime, (100. * (m_averageProcessingTime - m_averageSMPCostTime)) / m_averageProcessingTime);
 		}
 		else

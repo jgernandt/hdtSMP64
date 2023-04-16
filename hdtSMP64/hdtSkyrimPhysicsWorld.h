@@ -104,5 +104,7 @@ namespace hdt
 		float m_averageInterval;
 		int m_framesCount = 0;
 		float m_averageSMPCostTime = 0;
+		bool m_doMetrics = false;
+		float m_lastProcessingTime = 0;
 	};
 }
