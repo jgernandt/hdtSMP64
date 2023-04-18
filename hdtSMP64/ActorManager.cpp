@@ -195,7 +195,7 @@ namespace hdt
 
 		fixArmorNameMaps();
 
-		setSkeletonsActive();
+		setSkeletonsActive(true);
 	}
 
 	//NiAVObject* Actor::CalculateLOS_1405FD2C0(Actor *aActor, NiPoint3 *aTargetPosition, NiPoint3 *aRayHitPosition, float aViewCone)
@@ -205,7 +205,7 @@ namespace hdt
 	RelocAddr<_Actor_CalculateLOS> Actor_CalculateLOS(offset::Actor_CalculateLOS);
 
 	// @brief This function is called by different events, with different locking needs, and is therefore extracted from the events.
-	void ActorManager::setSkeletonsActive()
+	void ActorManager::setSkeletonsActive(const bool updateMetrics)
 	{
 		if (m_shutdown) return;
 
@@ -314,8 +314,14 @@ namespace hdt
 		}
 
 		const auto world = SkyrimPhysicsWorld::get();
-		if (!world->isSuspended() && // do not do metrics while paused
-			frameCount++ % world->min_fps == 0) // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
+
+		// We share the same doMetrics condition here and in hdtSkyrimPhysicsWorld to avoid any gap between both.
+		// The evaluation is done here rather than in hdtSkyrimPhysicsWorld because this event is called first.
+		world->m_doMetrics = updateMetrics &&                    // do not do metrics on a MenuOpenCloseEvent
+			                 !world->isSuspended() &&            // do not do metrics while paused
+		                     frameCount++ % world->min_fps == 0; // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
+
+		if (world->m_doMetrics)
 		{
 			const auto processing_time = world->m_averageSMPCostTime;
 			// 30% of processing time is in hdt per profiling;
@@ -327,7 +333,7 @@ namespace hdt
 				// calculate rolling average
 				rollingAverage += (averageTimePerSkeleton - rollingAverage) / m_sampleSize;
 			}
-			_DMESSAGE("msecs/activeSkeleton %2.2g rollingAverage %2.2g activeSkeletons/maxActive/total %d/%d/%d processTime/targetTime %2.2g/%2.2g", averageTimePerSkeleton, rollingAverage, activeSkeletons, maxActiveSkeletons, m_skeletons.size(), processing_time, target_time);
+			_VMESSAGE("msecs/activeSkeleton %2.2g rollingAverage %2.2g activeSkeletons/maxActive/total %d/%d/%d processTime/targetTime %2.2g/%2.2g", averageTimePerSkeleton, rollingAverage, activeSkeletons, maxActiveSkeletons, m_skeletons.size(), processing_time, target_time);
 			if (m_autoAdjustMaxSkeletons) {
 				maxActiveSkeletons = processing_time > target_time ? activeSkeletons - 2 : static_cast<int>(target_time / rollingAverage);
 				// clamp the value to the m_maxActiveSkeletons value

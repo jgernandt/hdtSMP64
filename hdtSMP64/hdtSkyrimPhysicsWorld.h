@@ -91,6 +91,7 @@ namespace hdt
 		float m_windStrength = 2.0f; // compare to gravity acceleration of 9.8
 		float m_distanceForNoWind = 50.0f; // how close to wind obstruction to fully block wind
 		float m_distanceForMaxWind = 3000.0f; // how far to wind obstruction to not block wind
+		bool m_doMetrics = false;
 
 	private:
 
@@ -103,8 +104,6 @@ namespace hdt
 		std::atomic_bool m_loading;
 		float m_accumulatedInterval;
 		float m_averageInterval;
-		int m_framesCount = 0;
-		bool m_doMetrics = false;
 		float m_lastProcessingTime = 0;
 	};
 }

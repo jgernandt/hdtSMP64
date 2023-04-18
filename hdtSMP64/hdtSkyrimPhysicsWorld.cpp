@@ -284,9 +284,6 @@ namespace hdt
 		else if (!(e.gamePaused || mm->IsGamePaused()) && m_suspended)
 			resume();
 
-		m_doMetrics = !isSuspended() &&               // do not do metrics while paused
-			          m_framesCount++ % min_fps == 0; // check every min-fps frames (i.e., a stable 60 fps should wait for 1 second)
-
 		LARGE_INTEGER ticks;
 		int64_t startTime = 0;
 		int64_t endTime = 0;
@@ -337,7 +334,7 @@ namespace hdt
 			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
 			m_lastProcessingTime += (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
 			m_averageSMPCostTime = (m_averageSMPCostTime + m_lastProcessingTime) * .5;
-			_DMESSAGE("smp cost in main loop (msecs): %2.2g saved: %2.2f%%", m_averageSMPCostTime, (100. * (m_averageProcessingTime - m_averageSMPCostTime)) / m_averageProcessingTime);
+			_VMESSAGE("smp cost in main loop (msecs): %2.2g saved: %2.2f%%", m_averageSMPCostTime, (100. * (m_averageProcessingTime - m_averageSMPCostTime)) / m_averageProcessingTime);
 		}
 		else
 			m_tasks.wait();

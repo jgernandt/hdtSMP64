@@ -247,6 +247,6 @@ namespace hdt
 		bool m_disable1stPersonViewPhysics = false;
 
 	private:
-		void setSkeletonsActive();
+		void setSkeletonsActive(const bool updateMetrics = false);
 	};
 }
