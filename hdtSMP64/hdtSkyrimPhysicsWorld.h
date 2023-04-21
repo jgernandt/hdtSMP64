@@ -21,6 +21,7 @@ namespace hdt
 		static SkyrimPhysicsWorld* get();
 
 		void doUpdate(float delta);
+		void doUpdate2ndStep(float delta, const float tick, const float remainingTimeStep);
 		void updateActiveState();
 
 		void addSkinnedMeshSystem(SkinnedMeshSystem* system) override;
@@ -81,10 +82,10 @@ namespace hdt
 		bool m_unclampedResets = true;
 		float m_unclampedResetAngle = 120.0f;
 		float m_averageProcessingTime = 0;
-		float m_averageSMPCostTime = 0;
+		float m_2ndStepAverageProcessingTime = 0;
+		float m_averageSMPProcessingTimeInMainLoop = 0;
 		bool disabled = false;
 		uint8_t m_resetPc;
-		IDebugLog::LogLevel m_logLevel;
 
 		//wind settings
 		bool m_enableWind = true;
@@ -104,6 +105,6 @@ namespace hdt
 		std::atomic_bool m_loading;
 		float m_accumulatedInterval;
 		float m_averageInterval;
-		float m_lastProcessingTime = 0;
+		float m_SMPProcessingTimeInMainLoop = 0;
 	};
 }

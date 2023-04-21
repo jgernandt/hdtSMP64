@@ -59,10 +59,6 @@ namespace hdt
 	{
 		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
 
-		LARGE_INTEGER ticks;
-		QueryPerformanceCounter(&ticks);
-		int64_t startTime = ticks.QuadPart;
-
 		// Time passed since last computation
 		m_accumulatedInterval += interval;
 
@@ -93,26 +89,49 @@ namespace hdt
 
 				readTransform(remainingTimeStep);
 
-				g_pluginInterface.onPreStep({ getCollisionObjectArray(), remainingTimeStep });
-
-				updateActiveState();
-				auto offset = applyTranslationOffset();
-				stepSimulation(remainingTimeStep, 0/*=maxSubSteps, ignored*/, tick);
-				restoreTranslationOffset(offset);
-				m_accumulatedInterval = 0;
-
-				g_pluginInterface.onPostStep({ getCollisionObjectArray(), remainingTimeStep });
-
-				writeTransform();
+				m_tasks.run([this, interval, tick, remainingTimeStep] { doUpdate2ndStep(interval, tick, remainingTimeStep); });
 			}
 		}
+	}
 
-		QueryPerformanceCounter(&ticks);
-		int64_t endTime = ticks.QuadPart;
-		QueryPerformanceFrequency(&ticks);
-		// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
-		float lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
-		m_averageProcessingTime = (m_averageProcessingTime + lastProcessingTime) * 0.5;
+	void SkyrimPhysicsWorld::doUpdate2ndStep(float interval, const float tick, const float remainingTimeStep)
+	{
+		if (m_suspended || m_isStasis)
+			return;
+
+		std::lock_guard<decltype(m_lock)> l(m_lock);
+
+		_MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
+
+		LARGE_INTEGER ticks;
+		int64_t startTime = 0;
+		if (m_doMetrics)
+		{
+			QueryPerformanceCounter(&ticks);
+			startTime = ticks.QuadPart;
+		}
+
+		g_pluginInterface.onPreStep({ getCollisionObjectArray(), remainingTimeStep });
+
+		updateActiveState();
+		auto offset = applyTranslationOffset();
+		stepSimulation(remainingTimeStep, 0, tick);
+		restoreTranslationOffset(offset);
+		m_accumulatedInterval = 0;
+
+		g_pluginInterface.onPostStep({ getCollisionObjectArray(), remainingTimeStep });
+
+		writeTransform();
+
+		if (m_doMetrics)
+		{
+			QueryPerformanceCounter(&ticks);
+			int64_t endTime = ticks.QuadPart;
+			QueryPerformanceFrequency(&ticks);
+			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
+			float lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+			m_2ndStepAverageProcessingTime = (m_2ndStepAverageProcessingTime + lastProcessingTime) * 0.5;
+		}
 	}
 
 	void SkyrimPhysicsWorld::suspendSimulationUntilFinished(std::function<void(void)> process)
@@ -294,19 +313,14 @@ namespace hdt
 			startTime = ticks.QuadPart;
 		}
 
-		m_tasks.wait();
+		std::lock_guard<decltype(m_lock)> l(m_lock);
 
-		m_tasks.run([this]()
-		{
-			std::lock_guard<decltype(m_lock)> l(m_lock);
+		float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
 
-			float interval = *(float*)(RelocationManager::s_baseAddr + (m_useRealTime ? offset::GameStepTimer_RealTime : offset::GameStepTimer_SlowTime));
-
-			if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
-				 doUpdate(interval);
-			else if (m_isStasis || (m_suspended && !m_loading))
-				writeTransform();
-		});
+		if (interval > FLT_EPSILON && !m_suspended && !m_isStasis && !m_systems.empty())
+			doUpdate(interval);
+		else if (m_isStasis || (m_suspended && !m_loading))
+			writeTransform();
 
 		if (m_doMetrics)
 		{
@@ -314,7 +328,7 @@ namespace hdt
 			endTime = ticks.QuadPart;
 			QueryPerformanceFrequency(&ticks);
 			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
-			m_lastProcessingTime = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+			m_SMPProcessingTimeInMainLoop = (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
 		}
 	}
 
@@ -332,9 +346,10 @@ namespace hdt
 			int64_t endTime = ticks.QuadPart;
 			QueryPerformanceFrequency(&ticks);
 			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
-			m_lastProcessingTime += (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
-			m_averageSMPCostTime = (m_averageSMPCostTime + m_lastProcessingTime) * .5;
-			_VMESSAGE("smp cost in main loop (msecs): %2.2g saved: %2.2f%%", m_averageSMPCostTime, (100. * (m_averageProcessingTime - m_averageSMPCostTime)) / m_averageProcessingTime);
+			m_SMPProcessingTimeInMainLoop += (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
+			m_averageSMPProcessingTimeInMainLoop = (m_averageSMPProcessingTimeInMainLoop + m_SMPProcessingTimeInMainLoop) * .5;
+			float totalSMPTime = m_averageSMPProcessingTimeInMainLoop + m_2ndStepAverageProcessingTime;
+			_VMESSAGE("smp cost in main loop (msecs): %2.2g, cost outside main loop: %2.2g, percentage outside vs total: %2.2f%%", m_averageSMPProcessingTimeInMainLoop, m_2ndStepAverageProcessingTime, 100. * m_2ndStepAverageProcessingTime / totalSMPTime);
 		}
 		else
 			m_tasks.wait();

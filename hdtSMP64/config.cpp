@@ -78,11 +78,7 @@ namespace hdt
 			{
 			case XMLReader::Inspected::StartTag:
 				if (reader.GetLocalName() == "logLevel")
-				{
-					IDebugLog::LogLevel logLevel = static_cast<IDebugLog::LogLevel>(reader.readInt());
-					gLog.SetLogLevel(logLevel);
-					SkyrimPhysicsWorld::get()->m_logLevel = logLevel;
-				}
+					gLog.SetLogLevel(static_cast<IDebugLog::LogLevel>(reader.readInt()));
 				else if (reader.GetLocalName() == "enableNPCFaceParts")
 					ActorManager::instance()->m_skinNPCFaceParts = reader.readBool();
 				else if (reader.GetLocalName() == "disableSMPHairWhenWigEquipped")

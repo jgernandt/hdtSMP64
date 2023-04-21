@@ -323,19 +323,19 @@ namespace hdt
 
 		if (world->m_doMetrics)
 		{
-			const auto processing_time = world->m_averageSMPCostTime;
+			const auto averageProcessingTimeInMainLoop = world->m_averageSMPProcessingTimeInMainLoop;
 			// 30% of processing time is in hdt per profiling;
 			// Setting it higher provides more time for hdt processing and can activate more skeletons.
 			const auto target_time = world->m_timeTick * world->m_percentageOfFrameTime;
-			auto averageTimePerSkeleton = 0.f;
+			auto averageTimePerSkeletonInMainLoop = 0.f;
 			if (activeSkeletons > 0) {
-				averageTimePerSkeleton = processing_time / activeSkeletons;
-				// calculate rolling average
-				rollingAverage += (averageTimePerSkeleton - rollingAverage) / m_sampleSize;
+				averageTimePerSkeletonInMainLoop = averageProcessingTimeInMainLoop / activeSkeletons;
+				// calculate rolling average TODO
+				// rollingAverage += (averageTimePerSkeletonInMainLoop - rollingAverage) / m_sampleSize;
 			}
-			_VMESSAGE("msecs/activeSkeleton %2.2g rollingAverage %2.2g activeSkeletons/maxActive/total %d/%d/%d processTime/targetTime %2.2g/%2.2g", averageTimePerSkeleton, rollingAverage, activeSkeletons, maxActiveSkeletons, m_skeletons.size(), processing_time, target_time);
+			_VMESSAGE("msecs/activeSkeleton %2.2g activeSkeletons/maxActive/total %d/%d/%d processTimeInMainLoop/targetTime %2.2g/%2.2g", averageTimePerSkeletonInMainLoop, activeSkeletons, maxActiveSkeletons, m_skeletons.size(), averageProcessingTimeInMainLoop, target_time);
 			if (m_autoAdjustMaxSkeletons) {
-				maxActiveSkeletons = processing_time > target_time ? activeSkeletons - 2 : static_cast<int>(target_time / rollingAverage);
+				maxActiveSkeletons = averageProcessingTimeInMainLoop > target_time ? activeSkeletons - 2 : static_cast<int>(target_time / rollingAverage);
 				// clamp the value to the m_maxActiveSkeletons value
 				maxActiveSkeletons = std::clamp(maxActiveSkeletons, 1, m_maxActiveSkeletons);
 				frameCount = 1;
