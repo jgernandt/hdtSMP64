@@ -81,19 +81,18 @@ namespace hdt
 		float m_rotationSpeedLimit = 10.f;
 		bool m_unclampedResets = true;
 		float m_unclampedResetAngle = 120.0f;
-		float m_averageProcessingTime = 0;
 		float m_2ndStepAverageProcessingTime = 0;
 		float m_averageSMPProcessingTimeInMainLoop = 0;
 		bool disabled = false;
 		uint8_t m_resetPc;
+		bool m_doMetrics = false;
+		int m_sampleSize = 5; // how many samples (each sample taken every second) for determining average time per activeSkeleton.
 
 		//wind settings
 		bool m_enableWind = true;
 		float m_windStrength = 2.0f; // compare to gravity acceleration of 9.8
 		float m_distanceForNoWind = 50.0f; // how close to wind obstruction to fully block wind
 		float m_distanceForMaxWind = 3000.0f; // how far to wind obstruction to not block wind
-		bool m_doMetrics = false;
-		int m_sampleSize = 5; // how many samples (each sample taken every second) for determining average time per activeSkeleton.
 
 	private:
 
