@@ -93,6 +93,7 @@ namespace hdt
 		float m_distanceForNoWind = 50.0f; // how close to wind obstruction to fully block wind
 		float m_distanceForMaxWind = 3000.0f; // how far to wind obstruction to not block wind
 		bool m_doMetrics = false;
+		int m_sampleSize = 5; // how many samples (each sample taken every second) for determining average time per activeSkeleton.
 
 	private:
 

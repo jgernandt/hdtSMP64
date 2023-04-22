@@ -241,7 +241,6 @@ namespace hdt
 		bool m_disableSMPHairWhenWigEquipped = false;
 		bool m_autoAdjustMaxSkeletons = true; // Whether to dynamically change the maxActive skeletons to maintain min_fps
 		int m_maxActiveSkeletons = 20; // The maximum active skeletons; hard limit
-		int m_sampleSize = 5; // how many samples (each sample taken every second) for determining average time per activeSkeleton.
 
 		// @brief Depending on this setting, we avoid to calculate the physics of the PC when it is in 1st person view.
 		bool m_disable1stPersonViewPhysics = false;

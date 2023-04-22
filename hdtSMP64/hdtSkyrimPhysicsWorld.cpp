@@ -347,7 +347,7 @@ namespace hdt
 			QueryPerformanceFrequency(&ticks);
 			// float ticks_per_ms = static_cast<float>(ticks.QuadPart) * 1e-3;
 			m_SMPProcessingTimeInMainLoop += (endTime - startTime) / static_cast<float>(ticks.QuadPart) * 1e3;
-			m_averageSMPProcessingTimeInMainLoop = (m_averageSMPProcessingTimeInMainLoop + m_SMPProcessingTimeInMainLoop) * .5;
+			m_averageSMPProcessingTimeInMainLoop = (m_averageSMPProcessingTimeInMainLoop * (m_sampleSize - 1) + m_SMPProcessingTimeInMainLoop) / m_sampleSize;
 			float totalSMPTime = m_averageSMPProcessingTimeInMainLoop + m_2ndStepAverageProcessingTime;
 			_VMESSAGE("smp cost in main loop (msecs): %2.2g, cost outside main loop: %2.2g, percentage outside vs total: %2.2f%%", m_averageSMPProcessingTimeInMainLoop, m_2ndStepAverageProcessingTime, 100. * m_2ndStepAverageProcessingTime / totalSMPTime);
 		}

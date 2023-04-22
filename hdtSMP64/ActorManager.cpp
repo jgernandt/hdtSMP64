@@ -330,16 +330,16 @@ namespace hdt
 			auto averageTimePerSkeletonInMainLoop = 0.f;
 			if (activeSkeletons > 0) {
 				averageTimePerSkeletonInMainLoop = averageProcessingTimeInMainLoop / activeSkeletons;
-				// calculate rolling average TODO
-				// rollingAverage += (averageTimePerSkeletonInMainLoop - rollingAverage) / m_sampleSize;
 			}
 			_VMESSAGE("msecs/activeSkeleton %2.2g activeSkeletons/maxActive/total %d/%d/%d processTimeInMainLoop/targetTime %2.2g/%2.2g", averageTimePerSkeletonInMainLoop, activeSkeletons, maxActiveSkeletons, m_skeletons.size(), averageProcessingTimeInMainLoop, target_time);
 			if (m_autoAdjustMaxSkeletons) {
-				maxActiveSkeletons = averageProcessingTimeInMainLoop > target_time ? activeSkeletons - 2 : static_cast<int>(target_time / rollingAverage);
+				maxActiveSkeletons = activeSkeletons + static_cast<int>((target_time - averageProcessingTimeInMainLoop) / activeSkeletons);
 				// clamp the value to the m_maxActiveSkeletons value
 				maxActiveSkeletons = std::clamp(maxActiveSkeletons, 1, m_maxActiveSkeletons);
 				frameCount = 1;
 			}
+			else if (maxActiveSkeletons != m_maxActiveSkeletons)
+				maxActiveSkeletons = m_maxActiveSkeletons;
 		}
 	}
 

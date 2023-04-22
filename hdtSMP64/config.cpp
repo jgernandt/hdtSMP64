@@ -121,7 +121,7 @@ namespace hdt
 					ActorManager::instance()->m_autoAdjustMaxSkeletons = reader.readBool();
 				}
 				else if (reader.GetLocalName() == "sampleSize")
-					ActorManager::instance()->m_sampleSize = std::max(reader.readInt(), 1);
+					SkyrimPhysicsWorld::get()->m_sampleSize = std::max(reader.readInt(), 1);
 				else if (reader.GetLocalName() == "disable1stPersonViewPhysics")
 					ActorManager::instance()->m_disable1stPersonViewPhysics = reader.readBool();
 				else
