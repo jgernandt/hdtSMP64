@@ -840,14 +840,15 @@ int btGeneric6DofSpring2Constraint::get_limit_motor_info2(
 
 		btScalar dampingFactor = limot->m_nonHookeanDamping;
 		btScalar stiffnessFactor = limot->m_nonHookeanStiffness;
-		if (error != 0 && (dampingFactor != 0 || stiffnessFactor != 0))
+		if (!btFuzzyZero(error) && (!btFuzzyZero(dampingFactor) || !btFuzzyZero(stiffnessFactor)))
 		{
 			btScalar range = pos < ep ? ep - limot->m_loLimit : limot->m_hiLimit - ep;
-			btScalar rf = range != 0 ? btFabs(error) / range : BT_ZERO;
+			btScalar rf = !btFuzzyZero(range) ? btFabs(error) / range : BT_ZERO;
 			// Avoid blowing shit up.
 			btScalar t = btClamped(rf, BT_ZERO, BT_ONE);
 			btScalar originalKd = kd;
 
+			// TODO add hookean config option?
 			kd *= BT_ONE - (dampingFactor * t);
 			ks *= BT_ONE - (stiffnessFactor * t);
 		}
