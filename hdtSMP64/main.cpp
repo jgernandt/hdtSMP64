@@ -488,7 +488,7 @@ namespace hdt
 
 extern "C" {
 
-	constexpr UInt32 hdtSMP64Version = 105004; // patch version + 10^2 * minor version + 10^5 * major version
+	constexpr UInt32 hdtSMP64Version = 105009; // patch version + 10^2 * minor version + 10^5 * major version
 
 #ifdef ANNIVERSARY_EDITION
 	__declspec(dllexport) SKSEPluginVersionData SKSEPlugin_Version =
