@@ -1362,7 +1362,6 @@ namespace hdt
 		constraint->setAngularUpperLimit(cinfo.angularUpperLimit);
 		for (int i = 0; i < 3; ++i)
 		{
-			// TODO hookean config option?
 			constraint->setStiffness(i, cinfo.linearStiffness[i], cinfo.linearStiffnessLimited);
 			constraint->setStiffness(i + 3, cinfo.angularStiffness[i], cinfo.angularStiffnessLimited);
 			constraint->setDamping(i, cinfo.linearDamping[i], cinfo.springDampingLimited);
