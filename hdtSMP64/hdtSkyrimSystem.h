@@ -138,9 +138,9 @@ namespace hdt
 			btVector3 angularTargetVelocity = btVector3(0, 0, 0);
 			btVector3 linearMaxMotorForce = btVector3(0, 0, 0);
 			btVector3 angularMaxMotorForce = btVector3(0, 0, 0);
-			btScalar motorERP = 0.2f;
+			btScalar motorERP = 0.9f;
 			btScalar motorCFM = 0;
-			btScalar stopERP = 0.9f;
+			btScalar stopERP = 0.2f;
 			btScalar stopCFM = 0;
 		};
 
