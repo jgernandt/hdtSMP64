@@ -66,7 +66,7 @@ namespace hdt
 		m_averageInterval += (interval - m_averageInterval) * .125f;
 
 		// No need to calculate physics if there is no active skeleton.
-		if (hdt::ActorManager::instance()->activeSkeletons)
+		if (!disabled && hdt::ActorManager::instance()->activeSkeletons)
 		{
 			// The tick is the given time for each computation substep. We set it to the average fps
 			// to have one average computation each frame when everything is usual.
