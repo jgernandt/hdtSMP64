@@ -246,6 +246,8 @@ namespace hdt
 		bool m_disable1stPersonViewPhysics = false;
 
 	private:
+		static NiNode* getCameraNode();
+
 		void setSkeletonsActive(const bool updateMetrics = false);
 	};
 }

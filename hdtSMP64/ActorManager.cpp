@@ -204,6 +204,18 @@ namespace hdt
 	typedef NiAVObject* (*_Actor_CalculateLOS)(Actor* aActor, NiPoint3* aTargetPosition, NiPoint3* aRayHitPosition, float aViewCone);
 	RelocAddr<_Actor_CalculateLOS> Actor_CalculateLOS(offset::Actor_CalculateLOS);
 
+	inline NiNode* ActorManager::getCameraNode()
+	{
+#ifdef SKYRIMVR
+		// Camera info taken from Shizof's cpbc under MIT. https://www.nexusmods.com/skyrimspecialedition/mods/21224?tab=files
+		if (!(*g_thePlayer)->loadedState)
+			return nullptr;
+		return (*g_thePlayer)->loadedState->node;
+#else
+		return PlayerCamera::GetSingleton()->cameraNode;
+#endif
+	}
+
 	// @brief This function is called by different events, with different locking needs, and is therefore extracted from the events.
 	void ActorManager::setSkeletonsActive(const bool updateMetrics)
 	{
@@ -214,16 +226,10 @@ namespace hdt
 		auto& playerCharacter = std::find_if(m_skeletons.begin(), m_skeletons.end(), [](Skeleton& s) { return s.isPlayerCharacter(); });
 		auto playerCell = (playerCharacter != m_skeletons.end() && playerCharacter->skeleton->m_parent) ? playerCharacter->skeleton->m_parent->m_parent : nullptr;
 
-		// We get the camera, its position and orientation.
-		// TODO Can this be reconciled between VR and AE/SE?
-#ifndef SKYRIMVR
-		const auto cameraNode = PlayerCamera::GetSingleton()->cameraNode;
-#else
-		// Camera info taken from Shizof's cpbc under MIT. https://www.nexusmods.com/skyrimspecialedition/mods/21224?tab=files
-		if (!(*g_thePlayer)->loadedState)
+		const auto cameraNode = getCameraNode();
+		if (!cameraNode)
 			return;
-		const auto cameraNode = (*g_thePlayer)->loadedState->node;
-#endif
+		// We get the camera, its position and orientation.
 		const auto cameraTransform = cameraNode->m_worldTransform;
 		const auto cameraPosition = cameraTransform.pos;
 		const auto cameraOrientation = cameraTransform.rot * NiPoint3(0., 1., 0.); // The camera matrix is relative to the world.
@@ -862,9 +868,19 @@ namespace hdt
 		if (m_cosAngleFromCameraDirectionTimesSkeletonDistance <= 0)
 			return false;
 
-		// We enable only the skeletons that the PC sees.
-		UINT8 unk1 = 0;
-		return HasLOS((*g_thePlayer), skeleton->m_owner, &unk1);
+		// We enable only the skeletons that can see the PC or the camera
+		const auto owner = DYNAMIC_CAST(this->skeletonOwner.get(), TESForm, Actor);
+		if (owner) {
+			auto cameraNode = getCameraNode();
+			if (!cameraNode)
+				return false;
+
+			auto cameraPosition = cameraNode->m_worldTransform.pos;
+			NiPoint3 hitLocation;
+			const auto object = Actor_CalculateLOS(owner, &cameraPosition, &hitLocation, 6.28);
+			return object ? false : true; // If object, we hit something on the path
+		}
+		return true; // should never happen, a skeleton without owner?
 	}
 
 	std::optional<NiPoint3> ActorManager::Skeleton::position() const
