@@ -88,6 +88,17 @@
     -->
     <useRealTime>false</useRealTime>
 
+    <!-- ######################### CULLING ################################### -->
+
+    <!--
+      minCullingDistance: (float) the minimum distance from the camera under which
+      no skeleton is culled.
+      If no value is set, default is 500. It's useful if for example the skeleton
+      origin is very near, behind the camera, but some parts of the skeleton
+      are in front of the camera and need to be animated.
+    -->
+    <minCullingDistance>500</minCullingDistance>
+
     <!-- ################# MAX SKELETONS NUMBER ########################### -->
 
     <!--

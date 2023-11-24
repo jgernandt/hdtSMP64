@@ -864,6 +864,13 @@ namespace hdt
 		//if (isPlayerCharacter())
 		//	return true;
 
+		// We always enable the skeletons that are just around the camera.
+		// It's useful if for example the skeleton origin is very near, behind the camera,
+		// but some parts or the skeleton are in front of the camera and need to be animated.
+		float minDistance = ActorManager::instance()->m_minCullingDistance;
+		if (m_distanceFromCamera2 < minDistance * minDistance)
+			return true;
+
 		// We don't enable the skeletons behind the camera or on its side.
 		if (m_cosAngleFromCameraDirectionTimesSkeletonDistance <= 0)
 			return false;

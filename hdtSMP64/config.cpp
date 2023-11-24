@@ -112,6 +112,8 @@ namespace hdt
 				}
 				else if (reader.GetLocalName() == "cudaDevice") {}
 #endif
+				else if (reader.GetLocalName() == "minCullingDistance")
+					ActorManager::instance()->m_minCullingDistance = reader.readFloat();
 				else if (reader.GetLocalName() == "maximumActiveSkeletons")
 				{
 					ActorManager::instance()->m_maxActiveSkeletons = reader.readInt();

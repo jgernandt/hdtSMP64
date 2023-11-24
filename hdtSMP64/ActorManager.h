@@ -241,6 +241,7 @@ namespace hdt
 		bool m_disableSMPHairWhenWigEquipped = false;
 		bool m_autoAdjustMaxSkeletons = true; // Whether to dynamically change the maxActive skeletons to maintain min_fps
 		int m_maxActiveSkeletons = 20; // The maximum active skeletons; hard limit
+		float m_minCullingDistance = 500; // The distance from the camera under which we never cull the skeletons.
 
 		// @brief Depending on this setting, we avoid to calculate the physics of the PC when it is in 1st person view.
 		bool m_disable1stPersonViewPhysics = false;
