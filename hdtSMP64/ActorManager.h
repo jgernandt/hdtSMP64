@@ -247,6 +247,7 @@ namespace hdt
 		bool m_disable1stPersonViewPhysics = false;
 
 	private:
+		NiPoint3 m_cameraPositionDuringFrame;
 		static NiNode* getCameraNode();
 
 		void setSkeletonsActive(const bool updateMetrics = false);

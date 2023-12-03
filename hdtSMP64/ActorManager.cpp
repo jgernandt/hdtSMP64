@@ -233,6 +233,7 @@ namespace hdt
 		const auto cameraTransform = cameraNode->m_worldTransform;
 		const auto cameraPosition = cameraTransform.pos;
 		const auto cameraOrientation = cameraTransform.rot * NiPoint3(0., 1., 0.); // The camera matrix is relative to the world.
+		this->m_cameraPositionDuringFrame = cameraPosition;
 
 		std::for_each(m_skeletons.begin(), m_skeletons.end(), [&](Skeleton& skel)
 			{
@@ -867,7 +868,8 @@ namespace hdt
 		// We always enable the skeletons that are just around the camera.
 		// It's useful if for example the skeleton origin is very near, behind the camera,
 		// but some parts or the skeleton are in front of the camera and need to be animated.
-		float minDistance = ActorManager::instance()->m_minCullingDistance;
+		auto i = ActorManager::instance();
+		float minDistance = i->m_minCullingDistance;
 		if (m_distanceFromCamera2 < minDistance * minDistance)
 			return true;
 
@@ -878,13 +880,8 @@ namespace hdt
 		// We enable only the skeletons that can see the PC or the camera
 		const auto owner = DYNAMIC_CAST(this->skeletonOwner.get(), TESForm, Actor);
 		if (owner) {
-			auto cameraNode = getCameraNode();
-			if (!cameraNode)
-				return false;
-
-			auto cameraPosition = cameraNode->m_worldTransform.pos;
 			NiPoint3 hitLocation;
-			const auto object = Actor_CalculateLOS(owner, &cameraPosition, &hitLocation, 6.28);
+			const auto object = Actor_CalculateLOS(owner, &(i->m_cameraPositionDuringFrame), &hitLocation, 6.28);
 			return object ? false : true; // If object, we hit something on the path
 		}
 		return true; // should never happen, a skeleton without owner?
