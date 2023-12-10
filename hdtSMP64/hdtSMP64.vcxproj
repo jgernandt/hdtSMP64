@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="V1_6_1130_NOCUDA_AVX|x64">
+      <Configuration>V1_6_1130_NOCUDA_AVX</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="V1_6_353_CUDA_AVX2_DEBUG|x64">
       <Configuration>V1_6_353_CUDA_AVX2_DEBUG</Configuration>
       <Platform>x64</Platform>
@@ -647,6 +651,13 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_1130_NOCUDA_AVX|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_659_NOCUDA_AVX|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -1031,6 +1042,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_640_NOCUDA_AVX|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_1130_NOCUDA_AVX|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_659_NOCUDA_AVX|x64'" Label="PropertySheets">
@@ -1448,6 +1462,13 @@
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_640_NOCUDA_AVX|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir);$(SolutionDir)..;$(SolutionDir)..\..\..\detours\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\..\..\detours\lib.X64;$(LibraryPath)</LibraryPath>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_1130_NOCUDA_AVX|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir);$(SolutionDir)..;$(SolutionDir)..\..\..\detours\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\..\..\detours\lib.X64;$(LibraryPath)</LibraryPath>
@@ -4721,6 +4742,66 @@ copy "$(TargetDir)hdtSMP64.pdb" "$(TargetDir)..\..\..\..\..\Faster HDT-SMP\$(Con
       <GPUDebugInfo>true</GPUDebugInfo>
     </CudaLink>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_1130_NOCUDA_AVX|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>CURRENTVERSION=V1_6_1130;BT_USE_SSE_IN_API;_SILENCE_AMP_DEPRECATION_WARNINGS;_DISABLE_EXTENDED_ALIGNED_STORAGE;NDEBUG;HDTSSEPHYSICS_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles>common/IPrefix.h</ForcedIncludeFiles>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\Detours\include;$(SolutionDir)hdtSMP64;$(SolutionDir)..\common;$(SolutionDir)..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/Zc:noexceptTypes- %(AdditionalOptions)</AdditionalOptions>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Neither</FavorSizeOrSpeed>
+      <TreatAngleIncludeAsExternal>false</TreatAngleIncludeAsExternal>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+      <ModuleDefinitionFile>export.def</ModuleDefinitionFile>
+      <AdditionalDependencies>detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\..\Detours\lib.X64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy "$(TargetDir)hdtSMP64.dll" "$(TargetDir)..\..\..\..\..\Faster HDT-SMP\$(Configuration)\SKSE\Plugins\" /Y
+copy "$(TargetDir)hdtSMP64.pdb" "$(TargetDir)..\..\..\..\..\Faster HDT-SMP\$(Configuration)\SKSE\Plugins\" /Y
+copy "$(TargetDir)hdtSMP64.dll" "C:\Games\MO2 Skyrim 1.6.640\MO2\mods\Faster HDT-SMP - 1130\SKSE\Plugins\" /Y
+copy "$(TargetDir)hdtSMP64.pdb" "C:\Games\MO2 Skyrim 1.6.640\MO2\mods\Faster HDT-SMP - 1130\SKSE\Plugins\" /Y</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>copy "$(ProjectDir)exportAE.def" "$(ProjectDir)export.def" /Y</Command>
+    </PreBuildEvent>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <FastMath>true</FastMath>
+      <Optimization>O2</Optimization>
+      <RuntimeChecks>Default</RuntimeChecks>
+      <TypeInfo>false</TypeInfo>
+      <CodeGeneration>compute_50,sm_50;compute_52,sm_52;compute_60,sm_60;compute_61,sm_61;compute_70,sm_70;compute_75,sm_75;compute_80,sm_80;compute_86,sm_86;compute_89,sm_89;compute_90,sm_90</CodeGeneration>
+    </CudaCompile>
+    <CudaLink>
+      <Optimization>O2</Optimization>
+      <GPUDebugInfo>true</GPUDebugInfo>
+    </CudaLink>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='V1_6_659_NOCUDA_AVX|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -7044,6 +7125,7 @@ copy "$(TargetDir)hdtSMP64.pdb" "$(TargetDir)..\..\..\..\..\Faster HDT-SMP\$(Con
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SE_NOCUDA_AVX512_DEBUG|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VR_NOCUDA_AVX512_DEBUG|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_640_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_1130_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_659_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_353_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_640_NOCUDA_AVX_DEBUG|x64'">true</ExcludedFromBuild>
@@ -7366,6 +7448,7 @@ copy "$(TargetDir)hdtSMP64.pdb" "$(TargetDir)..\..\..\..\..\Faster HDT-SMP\$(Con
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='SE_NOCUDA_AVX512_DEBUG|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='VR_NOCUDA_AVX512_DEBUG|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_640_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_1130_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_659_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_353_NOCUDA_AVX|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='V1_6_640_NOCUDA_AVX_DEBUG|x64'">true</ExcludedFromBuild>
